@@ -1,0 +1,547 @@
+<template>
+  <div class="login-container">
+    <main class="main-content">
+      <div class="login-card">
+        <h2 class="login-title">Register for Centjesbank</h2>
+
+        <!-- Progress indicator -->
+        <div class="progress-indicator">
+          <div
+            v-for="(step, index) in steps"
+            :key="index"
+            :class="[
+              'step',
+              { active: currentStep === index, completed: currentStep > index },
+            ]"
+          >
+            <span class="step-number">{{ index + 1 }}</span>
+            <span class="step-label">{{ step.label }}</span>
+          </div>
+        </div>
+
+        <!-- Form container with fixed height -->
+        <div class="form-container">
+          <!-- Step 1: Account Information -->
+          <form v-if="currentStep === 0" @submit.prevent="nextStep">
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                v-model="formData.email"
+                class="form-control"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                v-model="formData.password"
+                class="form-control"
+                required
+                minlength="8"
+              />
+            </div>
+            <div class="form-group">
+              <label for="confirmPassword">Confirm Password</label>
+              <input
+                type="password"
+                id="confirmPassword"
+                v-model="formData.confirmPassword"
+                class="form-control"
+                required
+                :class="{
+                  error:
+                    formData.password &&
+                    formData.password !== formData.confirmPassword,
+                }"
+              />
+              <small
+                v-if="
+                  formData.password &&
+                  formData.password !== formData.confirmPassword
+                "
+                class="error-message"
+              >
+                Passwords don't match
+              </small>
+            </div>
+            <div class="form-actions">
+              <button
+                type="submit"
+                class="btn-primary"
+                :disabled="!canProceedToStep2"
+              >
+                Next
+              </button>
+            </div>
+          </form>
+
+          <!-- Step 2: Personal Information -->
+          <form v-if="currentStep === 1" @submit.prevent="nextStep">
+            <div class="form-group">
+              <label for="firstName">First Name</label>
+              <input
+                type="text"
+                id="firstName"
+                v-model="formData.firstName"
+                class="form-control"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="lastName">Last Name</label>
+              <input
+                type="text"
+                id="lastName"
+                v-model="formData.lastName"
+                class="form-control"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="phone">Phone Number</label>
+              <input
+                type="tel"
+                id="phone"
+                v-model="formData.phone"
+                class="form-control"
+                required
+              />
+            </div>
+            <div class="form-actions">
+              <button type="button" class="btn-back" @click="prevStep">
+                Back
+              </button>
+              <button
+                type="submit"
+                class="btn-primary"
+                :disabled="!canProceedToStep3"
+              >
+                Next
+              </button>
+            </div>
+          </form>
+
+          <!-- Step 3: Verification & Terms -->
+          <form v-if="currentStep === 2" @submit.prevent="handleRegister">
+            <div class="form-group">
+              <label for="bsn">BSN Number</label>
+              <input
+                type="text"
+                id="bsn"
+                v-model="formData.bsn"
+                class="form-control"
+                required
+                minlength="9"
+                maxlength="9"
+              />
+            </div>
+            <div class="form-group">
+              <div class="checkbox-group">
+                <input
+                  type="checkbox"
+                  id="terms"
+                  v-model="formData.acceptedTerms"
+                  required
+                />
+                <label for="terms"
+                  >I accept the
+                  <a href="#" @click.prevent="showTerms">Terms of Service</a>
+                  and
+                  <a href="#" @click.prevent="showPrivacy"
+                    >Privacy Policy</a
+                  ></label
+                >
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="checkbox-group">
+                <input
+                  type="checkbox"
+                  id="newsletter"
+                  v-model="formData.subscribeNewsletter"
+                />
+                <label for="newsletter">Subscribe to our newsletter</label>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="btn-back" @click="prevStep">
+                Back
+              </button>
+              <button
+                type="submit"
+                class="btn-primary"
+                :disabled="!canRegister"
+              >
+                Create Account
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div v-if="error" class="error-message">{{ error }}</div>
+        <div class="login-link">
+          Already have an account? <router-link to="/login">Log in</router-link>
+        </div>
+      </div>
+    </main>
+  </div>
+</template>
+
+<script setup>
+import { ref, computed } from "vue";
+import axios from "../axios-auth";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
+
+const steps = [
+  { label: "Account" },
+  { label: "Personal" },
+  { label: "Verification" },
+];
+
+const currentStep = ref(0);
+const error = ref(null);
+
+const formData = ref({
+  // Step 1
+  email: "",
+  password: "",
+  confirmPassword: "",
+  // Step 2
+  firstName: "",
+  lastName: "",
+  phone: "",
+  // Step 3
+  bsn: "",
+  acceptedTerms: false,
+  subscribeNewsletter: false,
+});
+
+// Computed properties for form validation
+const canProceedToStep2 = computed(() => {
+  return (
+    formData.value.email &&
+    formData.value.password &&
+    formData.value.confirmPassword &&
+    formData.value.password === formData.value.confirmPassword
+  );
+});
+
+const canProceedToStep3 = computed(() => {
+  return (
+    formData.value.firstName && formData.value.lastName && formData.value.phone
+  );
+});
+
+const canRegister = computed(() => {
+  return (
+    formData.value.bsn &&
+    formData.value.bsn.length === 9 &&
+    formData.value.acceptedTerms
+  );
+});
+
+// Navigation methods
+const nextStep = () => {
+  if (
+    (currentStep.value === 0 && !canProceedToStep2.value) ||
+    (currentStep.value === 1 && !canProceedToStep3.value)
+  ) {
+    return;
+  }
+  currentStep.value++;
+};
+
+const prevStep = () => {
+  currentStep.value--;
+};
+
+// Form submission
+const handleRegister = async () => {
+  if (!canRegister.value) return;
+
+  error.value = null;
+  try {
+    const payload = {
+      email: formData.value.email,
+      password: formData.value.password,
+      firstName: formData.value.firstName,
+      lastName: formData.value.lastName,
+      phone: formData.value.phone,
+      bsn: formData.value.bsn,
+      subscribeNewsletter: formData.value.subscribeNewsletter,
+    };
+
+    const response = await axios.post("users/register", payload);
+    console.log("Registration successful:", response.data);
+
+    // Auto-login after registration
+    const loginResponse = await axios.post("users/login", {
+      email: formData.value.email,
+      password: formData.value.password,
+    });
+
+    axios.defaults.headers.common["Authorization"] =
+      "Bearer " + loginResponse.data;
+    router.push("/dashboard");
+  } catch (err) {
+    error.value =
+      err.response?.data?.message || "Registration failed. Please try again.";
+    console.error("Registration error:", err);
+  }
+};
+
+const showTerms = () => {
+  console.log("Show terms of service");
+};
+
+const showPrivacy = () => {
+  console.log("Show privacy policy");
+};
+</script>
+
+<style scoped>
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #f4f5fa;
+  font-family: Arial, sans-serif;
+  position: relative;
+  overflow: hidden;
+}
+
+.main-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+  flex: 1;
+  z-index: 1;
+  position: relative;
+}
+
+.login-card {
+  background: #ffffffbb;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 440px;
+  overflow: hidden;
+  padding: 24px;
+}
+
+.login-title {
+  color: #6c63ff;
+  font-size: 28px;
+  margin: 0 0 20px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.progress-indicator {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 0 24px;
+  position: relative;
+}
+
+.progress-indicator::before {
+  content: "";
+  position: absolute;
+  top: 15px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: #f4f5fa;
+  z-index: 0;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+  flex: 1;
+}
+
+.step-number {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: #f4f5fa;
+  color: #999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  margin-bottom: 8px;
+  border: 2px solid #f4f5fa;
+}
+
+.step-label {
+  font-size: 12px;
+  color: #999;
+  text-align: center;
+}
+
+.step.active .step-number {
+  background-color: #6c63ff;
+  color: white;
+  border-color: #6c63ff;
+}
+
+.step.active .step-label {
+  color: #6c63ff;
+  font-weight: bold;
+}
+
+.step.completed .step-number {
+  background-color: #6c63ff;
+  color: white;
+  border-color: #6c63ff;
+}
+
+.step.completed .step-label {
+  color: #333;
+}
+
+/* Form container with fixed height */
+.form-container {
+  min-height: 380px;
+  display: flex;
+  flex-direction: column;
+}
+
+form {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group {
+  margin: 0 0 16px;
+}
+
+label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+}
+
+.form-control {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #f4f5fa;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.form-control:focus {
+  border-color: #6c63ff;
+  outline: none;
+}
+
+.form-control.error {
+  border-color: #ff6c63;
+}
+
+.error-message {
+  color: #ff6c63;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.checkbox-group label {
+  margin-bottom: 0;
+  font-weight: normal;
+  line-height: 1.4;
+}
+
+.checkbox-group input[type="checkbox"] {
+  margin-top: 3px;
+}
+
+.form-actions {
+  margin-top: auto;
+  padding: 16px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.btn-primary {
+  background-color: #6c63ff;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-primary:hover {
+  background-color: #5a4fe0;
+}
+
+.btn-primary:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.btn-back {
+  background: none;
+  border: none;
+  color: #6c63ff;
+  padding: 12px 0;
+  cursor: pointer;
+  font-size: 16px;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.btn-back:hover {
+  color: #5a4fe0;
+  text-decoration: none;
+}
+
+.error-message {
+  color: #ff6c63;
+  margin: 16px 0 0;
+  text-align: center;
+}
+
+.login-link {
+  text-align: center;
+  margin-top: 24px;
+  font-size: 14px;
+  color: #666;
+}
+
+.login-link a {
+  color: #6c63ff;
+  text-decoration: none;
+}
+
+.login-link a:hover {
+  text-decoration: underline;
+}
+</style>
