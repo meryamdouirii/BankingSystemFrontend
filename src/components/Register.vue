@@ -47,9 +47,17 @@
                 type="tel"
                 id="phone"
                 v-model="formData.phone"
+                @input="formatPhoneNumber"
                 class="form-control"
+                maxlength="10"
                 required
               />
+              <small
+                v-if="formData.phone && !isValidPhone"
+                class="error-message"
+              >
+                Please enter exactly 10 digits
+              </small>
             </div>
             <div class="form-group">
               <label for="bsn">BSN Number</label>
@@ -213,7 +221,7 @@ const canProceedToStep2 = computed(() => {
   return (
     formData.value.firstName &&
     formData.value.lastName &&
-    formData.value.phone &&
+    isValidPhone.value &&
     isValidBSN.value
   );
 });
@@ -225,6 +233,10 @@ const canRegister = computed(() => {
     formData.value.password === formData.value.confirmPassword &&
     formData.value.acceptedTerms
   );
+});
+
+const isValidPhone = computed(() => {
+  return /^\d{10}$/.test(formData.value.phone);
 });
 
 const isValidEmail = computed(() => {
