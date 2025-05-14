@@ -3,8 +3,6 @@
     <main class="main-content">
       <div class="login-card">
         <h2 class="login-title">Register for Centjesbank</h2>
-
-        <!-- Progress indicator -->
         <div class="progress-indicator">
           <div
             v-for="(step, index) in steps"
@@ -19,68 +17,10 @@
           </div>
         </div>
 
-        <!-- Form container with fixed height -->
-        <div class="form-container">
-          <!-- Step 1: Account Information -->
-          <form v-if="currentStep === 0" @submit.prevent="nextStep">
-            <div class="form-group">
-              <label for="email">Email</label>
-              <input
-                type="email"
-                id="email"
-                v-model="formData.email"
-                class="form-control"
-                required
-              />
-            </div>
-            <div class="form-group">
-              <label for="password">Password</label>
-              <input
-                type="password"
-                id="password"
-                v-model="formData.password"
-                class="form-control"
-                required
-                minlength="8"
-              />
-            </div>
-            <div class="form-group">
-              <label for="confirmPassword">Confirm Password</label>
-              <input
-                type="password"
-                id="confirmPassword"
-                v-model="formData.confirmPassword"
-                class="form-control"
-                required
-                :class="{
-                  error:
-                    formData.password &&
-                    formData.password !== formData.confirmPassword,
-                }"
-              />
-              <small
-                v-if="
-                  formData.password &&
-                  formData.password !== formData.confirmPassword
-                "
-                class="error-message"
-              >
-                Passwords don't match
-              </small>
-            </div>
-            <div class="form-actions">
-              <button
-                type="submit"
-                class="btn-primary"
-                :disabled="!canProceedToStep2"
-              >
-                Next
-              </button>
-            </div>
-          </form>
+        <!-- Step 1: Personal Information -->
 
-          <!-- Step 2: Personal Information -->
-          <form v-if="currentStep === 1" @submit.prevent="nextStep">
+        <div class="form-container">
+          <form v-if="currentStep === 0" @submit.prevent="nextStep">
             <div class="form-group">
               <label for="firstName">First Name</label>
               <input
@@ -111,22 +51,6 @@
                 required
               />
             </div>
-            <div class="form-actions">
-              <button type="button" class="btn-back" @click="prevStep">
-                Back
-              </button>
-              <button
-                type="submit"
-                class="btn-primary"
-                :disabled="!canProceedToStep3"
-              >
-                Next
-              </button>
-            </div>
-          </form>
-
-          <!-- Step 3: Verification & Terms -->
-          <form v-if="currentStep === 2" @submit.prevent="handleRegister">
             <div class="form-group">
               <label for="bsn">BSN Number</label>
               <input
@@ -134,10 +58,88 @@
                 id="bsn"
                 v-model="formData.bsn"
                 class="form-control"
+                :class="{ error: formData.bsn && !isValidBSN }"
                 required
                 minlength="9"
                 maxlength="9"
+                @input="validateBSN"
               />
+              <small v-if="formData.bsn && !isValidBSN" class="error-message">
+                Please enter a valid 9-digit BSN
+              </small>
+            </div>
+            <div class="form-actions">
+              <button
+                type="submit"
+                class="btn-primary"
+                :disabled="!canProceedToStep2"
+              >
+                Next
+              </button>
+            </div>
+          </form>
+
+          <!-- Step 2: Account Information -->
+          <form v-if="currentStep === 1" @submit.prevent="handleRegister">
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                v-model="formData.email"
+                class="form-control"
+                :class="{ error: formData.email && !isValidEmail }"
+                required
+                @blur="validateEmail"
+              />
+              <small
+                v-if="formData.email && !isValidEmail"
+                class="error-message"
+              >
+                Please enter a valid email address
+              </small>
+            </div>
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                v-model="formData.password"
+                class="form-control"
+                :class="{ error: formData.password && !isStrongPassword }"
+                required
+                minlength="8"
+              />
+              <small
+                v-if="formData.password && !isStrongPassword"
+                class="error-message"
+              >
+                Password must be at least 8 characters
+              </small>
+            </div>
+            <div class="form-group">
+              <label for="confirmPassword">Confirm Password</label>
+              <input
+                type="password"
+                id="confirmPassword"
+                v-model="formData.confirmPassword"
+                class="form-control"
+                required
+                :class="{
+                  error:
+                    formData.password &&
+                    formData.password !== formData.confirmPassword,
+                }"
+              />
+              <small
+                v-if="
+                  formData.password &&
+                  formData.password !== formData.confirmPassword
+                "
+                class="error-message"
+              >
+                Passwords don't match
+              </small>
             </div>
             <div class="form-group">
               <div class="checkbox-group">
@@ -157,16 +159,7 @@
                 >
               </div>
             </div>
-            <div class="form-group">
-              <div class="checkbox-group">
-                <input
-                  type="checkbox"
-                  id="newsletter"
-                  v-model="formData.subscribeNewsletter"
-                />
-                <label for="newsletter">Subscribe to our newsletter</label>
-              </div>
-            </div>
+
             <div class="form-actions">
               <button type="button" class="btn-back" @click="prevStep">
                 Back
@@ -174,14 +167,14 @@
               <button
                 type="submit"
                 class="btn-primary"
-                :disabled="!canRegister"
+                :disabled="!canRegister || loading"
               >
-                Create Account
+                <span v-if="loading" class="spinner"></span>
+                <span v-else>Create Account</span>
               </button>
             </div>
           </form>
         </div>
-
         <div v-if="error" class="error-message">{{ error }}</div>
         <div class="login-link">
           Already have an account? <router-link to="/login">Log in</router-link>
@@ -198,60 +191,58 @@ import { useRouter } from "vue-router";
 
 const router = useRouter();
 
-const steps = [
-  { label: "Account" },
-  { label: "Personal" },
-  { label: "Verification" },
-];
+const steps = [{ label: "Personal" }, { label: "Account" }];
 
 const currentStep = ref(0);
 const error = ref(null);
 
 const formData = ref({
-  // Step 1
-  email: "",
-  password: "",
-  confirmPassword: "",
-  // Step 2
+  // Personal info
   firstName: "",
   lastName: "",
   phone: "",
-  // Step 3
   bsn: "",
+  // Account info
+  email: "",
+  password: "",
+  confirmPassword: "",
   acceptedTerms: false,
-  subscribeNewsletter: false,
 });
 
-// Computed properties for form validation
 const canProceedToStep2 = computed(() => {
   return (
-    formData.value.email &&
-    formData.value.password &&
-    formData.value.confirmPassword &&
-    formData.value.password === formData.value.confirmPassword
-  );
-});
-
-const canProceedToStep3 = computed(() => {
-  return (
-    formData.value.firstName && formData.value.lastName && formData.value.phone
+    formData.value.firstName &&
+    formData.value.lastName &&
+    formData.value.phone &&
+    isValidBSN.value
   );
 });
 
 const canRegister = computed(() => {
   return (
-    formData.value.bsn &&
-    formData.value.bsn.length === 9 &&
+    isValidEmail.value &&
+    isStrongPassword.value &&
+    formData.value.password === formData.value.confirmPassword &&
     formData.value.acceptedTerms
   );
 });
 
+const isValidEmail = computed(() => {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.value.email);
+});
+
+const isStrongPassword = computed(() => {
+  return formData.value.password.length >= 8;
+});
+
+const isValidBSN = computed(() => {
+  if (formData.value.bsn.length !== 9) return false;
+  return true;
+});
+
 // Navigation methods
 const nextStep = () => {
-  if (
-    (currentStep.value === 0 && !canProceedToStep2.value) ||
-    (currentStep.value === 1 && !canProceedToStep3.value)
-  ) {
+  if (currentStep.value === 0 && !canProceedToStep2.value) {
     return;
   }
   currentStep.value++;
@@ -261,11 +252,14 @@ const prevStep = () => {
   currentStep.value--;
 };
 
-// Form submission
+const loading = ref(false);
+
 const handleRegister = async () => {
-  if (!canRegister.value) return;
+  if (!canRegister.value || loading.value) return;
 
   error.value = null;
+  loading.value = true;
+
   try {
     const payload = {
       email: formData.value.email,
@@ -274,38 +268,41 @@ const handleRegister = async () => {
       lastName: formData.value.lastName,
       phone: formData.value.phone,
       bsn: formData.value.bsn,
-      subscribeNewsletter: formData.value.subscribeNewsletter,
     };
 
     const response = await axios.post("users/register", payload);
     console.log("Registration successful:", response.data);
 
-    // Auto-login after registration
-    const loginResponse = await axios.post("users/login", {
-      email: formData.value.email,
-      password: formData.value.password,
-    });
-
-    axios.defaults.headers.common["Authorization"] =
-      "Bearer " + loginResponse.data;
-    router.push("/dashboard");
+    // Redirect to login page
+    router.push("/login");
   } catch (err) {
     error.value =
       err.response?.data?.message || "Registration failed. Please try again.";
     console.error("Registration error:", err);
+  } finally {
+    loading.value = false;
   }
-};
-
-const showTerms = () => {
-  console.log("Show terms of service");
-};
-
-const showPrivacy = () => {
-  console.log("Show privacy policy");
 };
 </script>
 
 <style scoped>
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  border-top-color: transparent;
+  animation: spin 0.6s linear infinite;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 .login-container {
   min-height: 100vh;
   display: flex;
