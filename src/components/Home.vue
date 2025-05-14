@@ -6,7 +6,7 @@ const atms = ref([]);
 
 async function fetchATMs() {
   try {
-    const response = await axios.get("fact");
+    const response = await axios.get("atms");
     atms.value = response.data;
   } catch (error) {
     console.error("Failed to fetch ATMs:", error);
