@@ -19,6 +19,11 @@
             >Register</router-link
           >
         </li>
+        <li class="nav-item">
+          <router-link to="/manage-users" class="nav-link" active-class="active">
+            Manage Users
+            </router-link>
+        </li>
       </ul>
     </div>
   </nav>
