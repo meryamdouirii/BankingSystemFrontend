@@ -24,6 +24,10 @@
             Manage Users
             </router-link>
         </li>
+        <li class="nav-item">
+          <router-link to="/view-account" class="nav-link" active-class="active"
+            >View Account</router-link >
+        </li>
       </ul>
     </div>
   </nav>
