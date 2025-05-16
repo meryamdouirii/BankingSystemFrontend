@@ -2,19 +2,19 @@
 import { ref, onMounted } from "vue";
 import axios from "../axios-auth";
 
-const atms = ref([]);
+const accounts = ref([]);
 
-async function fetchATMs() {
+async function fetchAccounts() {
   try {
-    const response = await axios.get("fact");
-    atms.value = response.data;
+    const response = await axios.get("accounts");
+    accounts.value = response.data;
   } catch (error) {
-    console.error("Failed to fetch ATMs:", error);
-    atms.value = [{ error: "Failed to fetch data" }];
+    console.error("Failed to fetch accounts:", error);
+    accounts.value = [{ error: "Failed to fetch data" }];
   }
 }
 
-onMounted(fetchATMs);
+onMounted(fetchAccounts);
 </script>
 
 <template>
@@ -22,9 +22,9 @@ onMounted(fetchATMs);
     <div class="container">
       <h2 class="mt-3 mt-lg-5">Welcome to the homepage</h2>
       <div>
-        <h3>ATM Data:</h3>
-        <pre>{{ atms }}</pre>
-        <button @click="fetchATMs">Refresh Data</button>
+        <h3>Account Data:</h3>
+        <pre>{{ accounts }}</pre>
+        <button @click="fetchAccounts">Refresh Data</button>
       </div>
     </div>
   </section>
