@@ -16,7 +16,7 @@
             <span class="step-label">{{ step.label }}</span>
           </div>
         </div>
-
+        <div v-if="error" class="error-message fs-6 m-2">{{ error }}</div>
         <!-- Step 1: Personal Information -->
 
         <div class="form-container">
@@ -183,7 +183,7 @@
             </div>
           </form>
         </div>
-        <div v-if="error" class="error-message">{{ error }}</div>
+
         <div class="login-link">
           Already have an account? <router-link to="/login">Log in</router-link>
         </div>
@@ -282,14 +282,43 @@ const handleRegister = async () => {
       bsn: formData.value.bsn,
     };
 
-    const response = await axios.post("users/register", payload);
+    const response = await axios.post("/users", payload);
     console.log("Registration successful:", response.data);
 
-    // Redirect to login page
-    router.push("/login");
+    // Redirect to login page with success message
+    router.push({
+      path: "/login",
+      query: { registered: "true" },
+    });
   } catch (err) {
-    error.value =
-      err.response?.data?.message || "Registration failed. Please try again.";
+    // First try to get the error message from response data
+    if (err.response?.data) {
+      // If the error message is in the response data directly
+      if (typeof err.response.data === "string") {
+        error.value = err.response.data;
+      }
+      // If the error message is in a nested message property
+      else if (err.response.data.message) {
+        error.value = err.response.data.message;
+      }
+      // If the error is in a different format (like Java exception)
+      else {
+        error.value = JSON.stringify(err.response.data);
+      }
+    }
+    // For any other error
+    else {
+      error.value = err.message || "Registration failed";
+    }
+
+    // If we got a long Java exception string, extract the most relevant part
+    if (
+      error.value &&
+      error.value.includes("java.lang.IllegalArgumentException")
+    ) {
+      error.value = error.value.split(":").slice(-1)[0].trim();
+    }
+
     console.error("Registration error:", err);
   } finally {
     loading.value = false;
