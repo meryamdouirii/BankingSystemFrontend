@@ -5,6 +5,14 @@
       <div class="login-card">
         <!-- Login form -->
         <h2 class="login-title">Log in to Centjesbank</h2>
+        <!-- Success message -->
+        <div v-if="showSuccessMessage" class="success-message m-4">
+          Registration successful! Please log in with your credentials.
+        </div>
+        <!-- Error message -->
+        <div v-if="error" class="alert alert-danger m-4">
+          {{ error }}
+        </div>
         <form @submit.prevent="handleLogin">
           <div class="form-group">
             <label for="email">Email</label>
@@ -25,14 +33,15 @@
               class="form-control"
               required
             />
+            <div class="mt-4">
+              <a href="/BankingSystemFrontend/register" class="link"
+                >Don't have an account yet? Register now!</a
+              >
+            </div>
           </div>
-          <div class="remember-me">
-            <input type="checkbox" id="remember" v-model="remember" />
-            <label for="remember">Remember username</label>
-          </div>
+
           <div class="login-actions">
             <button type="submit" class="btn-primary">Log in</button>
-            <a href="#" class="link">Lost your login details?</a>
           </div>
         </form>
       </div>
@@ -41,27 +50,42 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import axios from "../axios-auth";
+import { useAuthStore } from "../stores/auth";
 
 const email = ref("");
 const password = ref("");
-const remember = ref(false);
 const error = ref(null);
+const showSuccessMessage = ref(false);
+
+const route = useRoute();
+const router = useRouter();
+const authStore = useAuthStore();
+
+onMounted(() => {
+  if (route.query.registered === "true") {
+    showSuccessMessage.value = true;
+    window.history.replaceState({}, document.title, "/login");
+  }
+});
 
 const handleLogin = async () => {
   error.value = null;
   try {
-    const response = await axios.post("users/login", {
-      email: email.value,
-      password: password.value,
-    });
-    // Handle successful login
-    console.log("Login successful:", response.data);
-    axios.defaults.headers.common["Authorization"] = "Bearer " + response.data;
+    const { token } = (
+      await axios.post("/users/login", {
+        email: email.value,
+        password: password.value,
+      })
+    ).data;
+
+    authStore.setToken(token);
+    router.push("/");
   } catch (err) {
-    error.value =
-      err.response?.data?.message || "Login failed. Please try again.";
+    // Always show generic error message on any failure
+    error.value = "User not found or invalid credentials";
     console.error("Login error:", err);
   }
 };
@@ -76,6 +100,15 @@ const handleLogin = async () => {
   font-family: Arial, sans-serif;
   position: relative;
   overflow: hidden;
+}
+
+.success-message {
+  background-color: #dff0d8;
+  color: #3c763d;
+  padding: 10px 15px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  border: 1px solid #d6e9c6;
 }
 
 .main-content {

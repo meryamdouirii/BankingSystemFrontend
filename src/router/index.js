@@ -4,11 +4,13 @@ import Home from "../components/Home.vue";
 import Login from "../components/Login.vue";
 import Register from "../components/Register.vue";
 import ManageUsers from "../components/employee/ManageUsers.vue";
+import ViewAccount from "@/components/customer/ViewAccount.vue";
 const routes = [
   { path: "/", component: Home },
   { path: "/manage-users",component: ManageUsers},
   { path: "/login", component: Login },
   { path: "/register", component: Register },
+  { path: "/view-account", component: ViewAccount },
 ];
 
 const router = createRouter({
