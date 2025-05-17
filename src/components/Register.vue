@@ -45,15 +45,15 @@
               <label for="phone">Phone Number</label>
               <input
                 type="tel"
-                id="phone"
-                v-model="formData.phone"
+                id="phoneNumber"
+                v-model="formData.phoneNumber"
                 @input="formatPhoneNumber"
                 class="form-control"
                 maxlength="10"
                 required
               />
               <small
-                v-if="formData.phone && !isValidPhone"
+                v-if="formData.phoneNumber && !isValidPhone"
                 class="error-message"
               >
                 Please enter exactly 10 digits
@@ -208,7 +208,7 @@ const formData = ref({
   // Personal info
   firstName: "",
   lastName: "",
-  phone: "",
+  phoneNumber: "", // Changed from 'phone'
   bsn: "",
   // Account info
   email: "",
@@ -216,6 +216,26 @@ const formData = ref({
   confirmPassword: "",
   acceptedTerms: false,
 });
+
+const formatPhoneNumber = () => {
+  // Remove all non-digit characters
+  let phoneNumber = formData.value.phoneNumber.replace(/\D/g, "");
+
+  // Limit to 10 digits
+  phoneNumber = phoneNumber.substring(0, 10);
+
+  // Update the model value
+  formData.value.phoneNumber = phoneNumber;
+};
+
+const validateBSN = () => {
+  // Simple validation - just check length for now
+  formData.value.bsn = formData.value.bsn.replace(/\D/g, "");
+};
+
+const validateEmail = () => {
+  // Email validation is handled by the computed property
+};
 
 const canProceedToStep2 = computed(() => {
   return (
@@ -236,7 +256,7 @@ const canRegister = computed(() => {
 });
 
 const isValidPhone = computed(() => {
-  return /^\d{10}$/.test(formData.value.phone);
+  return /^\d{10}$/.test(formData.value.phoneNumber);
 });
 
 const isValidEmail = computed(() => {
@@ -278,7 +298,7 @@ const handleRegister = async () => {
       password: formData.value.password,
       firstName: formData.value.firstName,
       lastName: formData.value.lastName,
-      phone: formData.value.phone,
+      phoneNumber: formData.value.phoneNumber,
       bsn: formData.value.bsn,
     };
 
@@ -291,27 +311,18 @@ const handleRegister = async () => {
       query: { registered: "true" },
     });
   } catch (err) {
-    // First try to get the error message from response data
     if (err.response?.data) {
-      // If the error message is in the response data directly
       if (typeof err.response.data === "string") {
         error.value = err.response.data;
-      }
-      // If the error message is in a nested message property
-      else if (err.response.data.message) {
+      } else if (err.response.data.message) {
         error.value = err.response.data.message;
-      }
-      // If the error is in a different format (like Java exception)
-      else {
+      } else {
         error.value = JSON.stringify(err.response.data);
       }
-    }
-    // For any other error
-    else {
+    } else {
       error.value = err.message || "Registration failed";
     }
 
-    // If we got a long Java exception string, extract the most relevant part
     if (
       error.value &&
       error.value.includes("java.lang.IllegalArgumentException")
@@ -323,6 +334,16 @@ const handleRegister = async () => {
   } finally {
     loading.value = false;
   }
+};
+
+const showTerms = () => {
+  // Implement terms modal/show functionality
+  console.log("Show terms");
+};
+
+const showPrivacy = () => {
+  // Implement privacy policy modal/show functionality
+  console.log("Show privacy policy");
 };
 </script>
 
