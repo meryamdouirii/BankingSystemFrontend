@@ -1,6 +1,7 @@
 <template>
   <div>
-    <h3>Set Limits</h3>
+    <h3 v-if="confirmationType === 'accept'">Set Limits</h3>
+    <h3 v-else>Are you sure you want to deny?</h3>
 
     <div v-if="confirmationType === 'accept'" class="limits-section">
       <div class="account-group">
