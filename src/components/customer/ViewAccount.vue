@@ -22,8 +22,6 @@
         <WelcomeMessage :customer="customer" />
       </template>
     </div>
-    
-    <BottomNavigation />
   </div>
 </template>
 
@@ -35,7 +33,6 @@ import OverviewHeader from './OverviewHeader.vue';
 import TotalBalanceCard from './TotalBalanceCard.vue';
 import ActionButtons from './ActionButtons.vue';
 import AccountSection from './AccountSection.vue';
-import BottomNavigation from './BottomNavigation.vue';
 import WelcomeMessage from './WelcomeMessage.vue';
 
 const route = useRoute();
@@ -48,7 +45,7 @@ const error = ref(null);
 const fetchUserData = async () => {
   try {
     loading.value = true;
-    const response = await axios.get(`users/${route.params.id || 2}`);
+    const response = await axios.get(`users/${route.params.id || 10}`);
     customer.value = response.data;
     
     checkingAccount.value = response.data.accounts?.find(acc => acc.type === 'CHECKING');
