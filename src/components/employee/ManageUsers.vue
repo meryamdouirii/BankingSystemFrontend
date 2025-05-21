@@ -31,7 +31,11 @@
                       <td>{{ user.lastName }}, {{ user.firstName }}</td>
                       <td>{{ user.bsn }}</td>
                       <td>{{ user.phoneNumber }}</td>
-                      <td>{{ user.accounts.length }}</td>
+                      <td>
+                        <button @click="openAccountViewModal(user)"class="btn-small">
+                          View Accounts
+                        </button>
+                      </td>
                       <td> {{ user.approval_status }} </td>
                       <td>
                         <span :class="['status', user._active ? 'active' : 'inactive']">
@@ -49,12 +53,12 @@
                                 : 'rejected'
                           ]"
                           :disabled="user.approval_status !== 'PENDING'"
-                          @click="openModal(user)"
+                          @click="openRequestModal(user)"
                         >
                           {{ user.approval_status === 'ACCEPTED'
                             ? 'Accepted'
                             : user.approval_status === 'PENDING'
-                              ? 'Handle Request'
+                              ? 'Handle'
                               : 'Rejected' }}
                         </button>
                         <button :class="['btn-small', user._active ? 'deactivate' : 'activate']">
@@ -67,11 +71,18 @@
               </div>
             <div v-else class="no-users">No users found.</div>
             <HandleRequest
-                v-if="showModal"
-                :show="showModal"
+                v-if="showRequestModal"
+                :show="showRequestModal"
                 :user="selectedUser"
-                @close="closeModal"
+                @close="closeRequestModal"
                 @done="handleDone"/>
+            <AccountView
+              v-if="showAccountViewModal"
+              :show="showAccountViewModal"
+              :user="selectedUser"
+              @close="closeAccountViewModal"
+            />
+
           </div>
         </div>
       </div>
@@ -82,7 +93,7 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
 import axios from "../../axios-auth";
-import { useRouter } from "vue-router";
+import AccountView from "./AccountView.vue";
 import HandleRequest from "./request/HandleRequest.vue";
 
 const users = ref([]);
@@ -99,22 +110,31 @@ const fetchUsers = async () => {
   }
 };
 
-const showModal = ref(false);
+const showRequestModal = ref(false);
+const showAccountViewModal = ref(false);
 const selectedUser = ref(null);
 
-const openModal = (user) => {
+const openAccountViewModal = (user) => {
   selectedUser.value = user;
-  showModal.value = true;
+  showAccountViewModal.value = true;
+};
+const closeAccountViewModal = () => {
+  showAccountViewModal.value = false;
+  selectedUser.value = null;
+};
+const openRequestModal = (user) => {
+  selectedUser.value = user;
+  showRequestModal.value = true;
 };
 
-const closeModal = () => {
-  showModal.value = false;
+const closeRequestModal = () => {
+  showRequestModal.value = false;
   selectedUser.value = null;
 };
 
 const handleDone = async () => {
   await fetchUsers();  
-  closeModal();        
+  closeRequestModal();        
 };
 const filteredUsers = computed(() => {
   const term = searchTerm.value.toLowerCase();
@@ -167,6 +187,9 @@ onMounted(fetchUsers);
   max-width: 500px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
+button{
+  font-weight: bold;
+}
 
 .modal-actions {
   margin-top: 1.5rem;
@@ -185,6 +208,13 @@ onMounted(fetchUsers);
   width: 100%;
   border-collapse: collapse;
   margin-top: 16px;
+}
+
+.user-table thead th {
+  position: sticky;
+  top: 0;
+  background-color: white; 
+  z-index: 1;
 }
 
 .user-table th,
