@@ -1,4 +1,17 @@
-<script setup></script>
+<script setup>
+import { ref } from 'vue'
+import { computed } from 'vue'
+import { useAuthStore } from '../stores/auth'
+
+const authStore = useAuthStore()
+
+const isLoggedIn = computed(() => !!authStore.token)
+function logout() {
+  authStore.logout()
+}
+
+</script>
+
 
 <template>
   <nav class="navbar navbar-expand-md navbar-dark nav">
@@ -9,16 +22,20 @@
             >Home</router-link
           >
         </li>
-        <li class="nav-item">
+        <li v-if="!isLoggedIn"  class="nav-item">
           <router-link to="/login" class="nav-link" active-class="active"
             >Login</router-link
           >
         </li>
-        <li class="nav-item">
+        <li v-if="!isLoggedIn" class="nav-item">
           <router-link to="/register" class="nav-link" active-class="active"
             >Register</router-link
           >
         </li>
+        <li v-if="isLoggedIn" class="nav-item">
+          <a href="#" class="nav-link" @click.prevent="logout">Logout</a>
+        </li>
+
         <li class="nav-item">
           <router-link
             to="/manage-users"
