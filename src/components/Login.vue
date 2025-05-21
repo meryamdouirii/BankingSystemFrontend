@@ -82,6 +82,7 @@ const handleLogin = async () => {
     ).data;
 
     authStore.setToken(token);
+    localStorage.setItem("token", token);
     router.push("/");
   } catch (err) {
     // Always show generic error message on any failure
