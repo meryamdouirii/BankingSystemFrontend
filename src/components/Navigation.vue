@@ -4,6 +4,7 @@ import { computed } from 'vue'
 import { useAuthStore } from '../stores/auth'
 
 const authStore = useAuthStore()
+const userRole = computed(() => authStore.userRole)
 
 const isLoggedIn = computed(() => !!authStore.token)
 function logout() {
@@ -33,10 +34,15 @@ function logout() {
           >
         </li>
         <li v-if="isLoggedIn" class="nav-item">
-          <a href="#" class="nav-link" @click.prevent="logout">Logout</a>
+          <router-link
+          @click.prevent="logout"
+            to="/login"
+            class="nav-link"
+            active-class="active"> Log Out
+        </router-link>
         </li>
 
-        <li class="nav-item">
+        <li v-if="userRole === 'ROLE_ADMINISTRATOR' || userRole === 'ROLE_EMPLOYEE'" class="nav-item">
           <router-link
             to="/manage-users"
             class="nav-link"
@@ -45,7 +51,7 @@ function logout() {
             Manage Users
           </router-link>
         </li>
-        <li class="nav-item">
+        <li v-if="userRole ==='ROLE_CUSTOMER'" class="nav-item">
           <router-link to="/view-account" class="nav-link" active-class="active"
             >View Account</router-link
           >
@@ -55,8 +61,3 @@ function logout() {
   </nav>
 </template>
 
-<style>
-.nav {
-  background-color: #6c63ff;
-}
-</style>

@@ -37,28 +37,3 @@ defineProps({
 });
 </script>
 
-<style scoped>
-.bg-gray {
-  background-color: #f5f5f5; /* Lichtgrijze achtergrond */
-}
-
-.account-card {
-  transition: all 0.3s ease;
-  cursor: pointer;
-}
-
-.account-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
-  background-color: #e0e0e0; /* Donkerdere grijs bij hover */
-}
-
-/* Optioneel: contrast verhogen bij hover */
-.account-card:hover h6 {
-  color: #0d6efd !important; /* Helderder blauw voor de account type */
-}
-
-.account-card:hover .text-muted {
-  color: #495057 !important; /* Donkerdere tekst voor betere leesbaarheid */
-}
-</style>

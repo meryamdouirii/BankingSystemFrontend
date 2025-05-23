@@ -126,66 +126,13 @@ const confirmAction = async () => {
   }
 };
 </script>
-
-<style scoped>
-
-.limits-section {
-  padding: 1rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background-color: #f9f9f9;
-}
-
-.modal-actions {
-  margin-top: 1.5rem;
-  text-align: right;
-}
-
-.btn-small {
-  padding: 6px 12px;
-  margin-left: 8px;
-  width: 8rem;
-  border: none;
-  border-radius: 6px;
-  font-size: 14px;
-  cursor: pointer;
-  color: white;
-  transition: background-color 0.2s ease;
-}
-
-.btn-green {
-  background-color: #28a745;
-}
-.btn-green:hover {
-  background-color: #218838;
-}
-
-.btn-small:not(.btn-green) {
+<style
+scoped>
+.btn-small:not(.btn-green):not(.btn-red) {
   background-color: #6c757d;
 }
-.btn-small:not(.btn-green):hover {
-  background-color: #5a6268;
-}
 
-.limits-section {
-  margin: 1rem 0;
-}
-.limit-group {
-  margin-bottom: 0.8rem;
-}
-.limit-group label {
-  display: block;
-  margin-bottom: 4px;
-  font-weight: 500;
-}
-.limit-group input {
-  width: 100%;
-  padding: 6px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-.error {
-  color: red;
-  font-size: 0.9rem;
+.btn-small:not(.btn-green):not(.btn-red):hover {
+  background-color: #5a6268;
 }
 </style>

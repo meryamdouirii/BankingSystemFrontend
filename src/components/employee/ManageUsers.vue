@@ -1,7 +1,20 @@
 <template>
+
   <div class="container">
+    <nav aria-label="breadcrumb" class="breadcrumb-container">
+      <ol class="breadcrumb-list">
+        <li v-for="(crumb, index) in breadcrumbs" :key="index" class="breadcrumb-item">
+          <template v-if="crumb.link">
+            <router-link :to="crumb.link">{{ crumb.name }}</router-link>
+          </template>
+          <template v-else>
+            <span>{{ crumb.name }}</span>
+          </template>
+        </li>
+      </ol>
+      </nav>
     <main class="main-content">
-      <div class="card mt-5">
+      <div class="card">
         <div class="card-body">
           <h2 class="title">User Management</h2>
 
@@ -9,7 +22,7 @@
 
           <!--<p>{{ users }}</p>-->
 
-          <div class="card-body" style="min-height: auto;">
+          <div v-if="!error" class="card-body" style="min-height: auto;">
             <input v-model="searchTerm" type="text" placeholder="Search users..." class="search-input" />
               <div class="table-scroll" v-if="filteredUsers.length">
                 <table class="user-table" v-if="filteredUsers.length">
@@ -32,9 +45,16 @@
                       <td>{{ user.bsn }}</td>
                       <td>{{ user.phoneNumber }}</td>
                       <td>
-                        <button @click="openAccountViewModal(user)"class="btn-small">
+                        <router-link
+                          :to="`/manage-user-accounts/${user.id}`"
+                          class="btn-small"
+                          :class="{ 'disabled-btn': !user.accounts || user.accounts.length === 0 }"
+                          :aria-disabled="!user.accounts || user.accounts.length === 0"
+                          @click.prevent="!user.accounts || user.accounts.length === 0 ? null : null"
+                        >
                           View Accounts
-                        </button>
+                        </router-link>
+
                       </td>
                       <td> {{ user.approval_status }} </td>
                       <td>
@@ -46,11 +66,9 @@
                         <button
                           :class="[
                             'btn-small',
-                            user.approval_status === 'ACCEPTED'
-                              ? 'accepted'
-                              : user.approval_status === 'PENDING'
-                                ? 'handle'
-                                : 'rejected'
+                            user.approval_status === 'PENDING'
+                              ? 'handle'
+                              : 'disabled-btn'
                           ]"
                           :disabled="user.approval_status !== 'PENDING'"
                           @click="openRequestModal(user)"
@@ -76,13 +94,7 @@
                 :user="selectedUser"
                 @close="closeRequestModal"
                 @done="handleDone"/>
-            <AccountView
-              v-if="showAccountViewModal"
-              :show="showAccountViewModal"
-              :user="selectedUser"
-              @close="closeAccountViewModal"
-            />
-
+            
           </div>
         </div>
       </div>
@@ -96,6 +108,11 @@ import axios from "../../axios-auth";
 import AccountView from "./AccountView.vue";
 import HandleRequest from "./request/HandleRequest.vue";
 
+const breadcrumbs = ref([
+  { name: 'Home', link: '/' },
+  { name: 'Manage Users', link: null }  
+])
+
 const users = ref([]);
 const error = ref(null);
 const searchTerm = ref("");
@@ -105,23 +122,22 @@ const fetchUsers = async () => {
     const response = await axios.get("users");
     users.value = response.data;
   } catch (err) {
-    error.value = "Failed to load users.";
+    if (err.response && err.response.status === 401) {
+      error.value = "Unauthorized access. Please log in.";
+    } else if (err.response && err.response.status === 403) {
+      error.value = "Forbidden access. You do not have permission to view this page.";
+    } else if (err.response && err.response.status === 404) {
+      error.value = "Users not found.";
+    } else {
+      error.value = "Failed to load users.";
+    }
     console.error(err);
   }
 };
 
 const showRequestModal = ref(false);
-const showAccountViewModal = ref(false);
 const selectedUser = ref(null);
 
-const openAccountViewModal = (user) => {
-  selectedUser.value = user;
-  showAccountViewModal.value = true;
-};
-const closeAccountViewModal = () => {
-  showAccountViewModal.value = false;
-  selectedUser.value = null;
-};
 const openRequestModal = (user) => {
   selectedUser.value = user;
   showRequestModal.value = true;
@@ -164,134 +180,3 @@ onMounted(fetchUsers);
 </script>
 
 
-<style scoped>
-
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.6);
-  z-index: 1000;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.modal-content {
-  background-color: white;
-  padding: 2rem;
-  border-radius: 8px;
-  width: 90%;
-  max-width: 500px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-}
-button{
-  font-weight: bold;
-}
-
-.modal-actions {
-  margin-top: 1.5rem;
-  text-align: right;
-}
-
-
-.table-scroll {
-  max-height: 30rem; 
-  overflow-y: auto;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-}
-
-.user-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 16px;
-}
-
-.user-table thead th {
-  position: sticky;
-  top: 0;
-  background-color: white; 
-  z-index: 1;
-}
-
-.user-table th,
-.user-table td {
-  padding: 12px;
-  border-bottom: 1px solid #eee;
-  text-align: left;
-}
-
-.status {
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-weight: bold;
-  font-size: 12px;
-}
-
-.status.active {
-  background-color: #d4f8e8;
-  color: #2d995b;
-}
-
-.status.inactive {
-  background-color: #fde2e1;
-  color: #d14545;
-}
-
-.btn-small {
-  padding: 6px 12px;
-  margin-right: 8px;
-  width: 8rem;
-  border: none;
-  border-radius: 6px;
-  font-size: 14px;
-  cursor: pointer;
-  color: white;
-  background-color: #6c63ff;
-}
-
-.btn-small.deactivate {
-  background-color: #d14545;
-}
-
-.btn-small.activate {
-  background-color: #2d995b;
-}
-
-.btn-small:hover {
-  opacity: 0.9;
-}
-
-.btn-small.accepted,
-.btn-small.rejected {
-  background-color: #696a6a;
-}
-
-.btn-small.handle {
-  background-color: #f0ad4e;
-  color: #fff;
-}
-
-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.no-users {
-  text-align: center;
-  padding: 20px;
-  color: #666;
-}
-
-.search-input {
-  width: 100%;
-  padding: 8px 12px;
-  margin-bottom: 12px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 14px;
-}
-</style>

@@ -1,0 +1,277 @@
+/* === Navigation === */
+.nav {
+  background-color: #6c63ff;
+}
+
+/* === Buttons === */
+button {
+  font-weight: bold;
+}
+
+.btn-small {
+  padding: 6px 12px;
+  margin-right: 8px;
+  width: 8rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  color: white;
+  background-color: #6c63ff;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.btn-small:hover {
+  opacity: 0.8;
+}
+
+.btn-small.deactivate {
+  background-color: #d14545;
+}
+
+.btn-small.activate {
+  background-color: #2d995b;
+}
+
+.btn-small.handle {
+  background-color: #f0ad4e;
+  color: #fff;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.disabled-btn {
+  background-color: #ccc;
+  color: #666;
+  cursor: not-allowed;
+}
+
+/* === Table === */
+.table-scroll {
+  max-height: 30rem;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.user-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+}
+
+.user-table thead th {
+  position: sticky;
+  top: 0;
+  background-color: white;
+  z-index: 1;
+}
+
+.user-table th,
+.user-table td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+}
+
+/* === Status Labels === */
+.status {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.status.active {
+  background-color: #d4f8e8;
+  color: #2d995b;
+}
+
+.status.inactive {
+  background-color: #fde2e1;
+  color: #d14545;
+}
+
+/* === Empty State / Search === */
+.no-users,
+.no-accounts {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+  background-color: #f9f9f9;
+  border-radius: 6px;
+  margin-top: 1rem;
+}
+
+.search-input {
+  width: 100%;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+/* === Breadcrumbs === */
+.breadcrumb-container {
+  display: flex;
+  justify-content: left;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  font-size: 18px;
+}
+
+.breadcrumb-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.breadcrumb-item {
+  display: flex;
+  align-items: center;
+}
+
+.breadcrumb-item a {
+  color: #6c63ff;
+  text-decoration: none;
+}
+
+.breadcrumb-item a:hover {
+  text-decoration: underline;
+}
+
+/* === Modal Overlay === */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  position: relative;
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.btn-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  color: #666;
+  line-height: 1;
+  padding: 0;
+}
+
+.btn-close:hover {
+  color: #333;
+}
+
+/* === Modal Actions === */
+.modal-actions {
+  margin-top: 1.5rem;
+  text-align: right;
+}
+
+.btn-green {
+  background-color: #28a745;
+}
+
+.btn-green:hover {
+  background-color: #218838;
+}
+
+.btn-red {
+  background-color: #dc3545;
+}
+
+.btn-red:hover {
+  background-color: #c82333;
+}
+
+
+/* === Confirmation Modal (Limits Section) === */
+.limits-section {
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  margin: 1rem 0;
+}
+
+.account-group h5 {
+  margin-bottom: 0.5rem;
+}
+
+.limit-group {
+  margin-bottom: 0.8rem;
+}
+
+.limit-group label {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.limit-group input {
+  width: 100%;
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* === Error Text === */
+.error {
+  color: red;
+  font-size: 0.9rem;
+}
+
+.bg-gray {
+  background-color: #f5f5f5; /* Lichtgrijze achtergrond */
+}
+
+.account-card {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.account-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+  background-color: #e0e0e0; /* Donkerdere grijs bij hover */
+}
+
+/* Optioneel: contrast verhogen bij hover */
+.account-card:hover h6 {
+  color: #0d6efd !important; /* Helderder blauw voor de account type */
+}
+
+.account-card:hover .text-muted {
+  color: #495057 !important; /* Donkerdere tekst voor betere leesbaarheid */
+}
+/* Disable hover effect */
+.no-hover {
+    pointer-events: none;
+}
+
