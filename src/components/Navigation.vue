@@ -1,18 +1,16 @@
 <script setup>
-import { ref } from 'vue'
-import { computed } from 'vue'
-import { useAuthStore } from '../stores/auth'
+import { ref } from "vue";
+import { computed } from "vue";
+import { useAuthStore } from "../stores/auth";
 
-const authStore = useAuthStore()
-const userRole = computed(() => authStore.userRole)
+const authStore = useAuthStore();
+const userRole = computed(() => authStore.userRole);
 
-const isLoggedIn = computed(() => !!authStore.token)
+const isLoggedIn = computed(() => !!authStore.token);
 function logout() {
-  authStore.logout()
+  authStore.logout();
 }
-
 </script>
-
 
 <template>
   <nav class="navbar navbar-expand-md navbar-dark nav">
@@ -23,7 +21,7 @@ function logout() {
             >Home</router-link
           >
         </li>
-        <li v-if="!isLoggedIn"  class="nav-item">
+        <li v-if="!isLoggedIn" class="nav-item">
           <router-link to="/login" class="nav-link" active-class="active"
             >Login</router-link
           >
@@ -35,14 +33,21 @@ function logout() {
         </li>
         <li v-if="isLoggedIn" class="nav-item">
           <router-link
-          @click.prevent="logout"
+            @click.prevent="logout"
             to="/login"
             class="nav-link"
-            active-class="active"> Log Out
-        </router-link>
+            active-class="active"
+          >
+            Log Out
+          </router-link>
         </li>
 
-        <li v-if="userRole === 'ROLE_ADMINISTRATOR' || userRole === 'ROLE_EMPLOYEE'" class="nav-item">
+        <li
+          v-if="
+            userRole === 'ROLE_ADMINISTRATOR' || userRole === 'ROLE_EMPLOYEE'
+          "
+          class="nav-item"
+        >
           <router-link
             to="/manage-users"
             class="nav-link"
@@ -51,7 +56,16 @@ function logout() {
             Manage Users
           </router-link>
         </li>
-        <li v-if="userRole ==='ROLE_CUSTOMER'" class="nav-item">
+        <li v-if="userRole === 'ROLE_CUSTOMER'" class="nav-item">
+          <router-link
+            to="/transactionhistory"
+            class="nav-link"
+            active-class="active"
+          >
+            Transaction History
+          </router-link>
+        </li>
+        <li v-if="userRole === 'ROLE_CUSTOMER'" class="nav-item">
           <router-link to="/view-account" class="nav-link" active-class="active"
             >View Account</router-link
           >
@@ -60,4 +74,3 @@ function logout() {
     </div>
   </nav>
 </template>
-

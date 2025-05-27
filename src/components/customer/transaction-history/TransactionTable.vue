@@ -27,7 +27,8 @@
             {{ Math.abs(transaction.amount).toFixed(2) }}
             <span class="type-text">({{ getType(transaction) }})</span>
           </td>
-          <td>{{ getAssociatedAccount(transaction) }}</td>
+          <td>{{ transaction.initiatorName }}</td>
+          <!-- Changed this line -->
         </tr>
         <tr v-if="transactions.length === 0">
           <td colspan="6" class="no-results">
@@ -50,15 +51,8 @@ export default {
 
   methods: {
     getType(transaction) {
-      // Assume deposit if 'to' is the current account, withdrawal if 'from' is
-      // This logic may need to be adjusted based on your app's logic
       if (transaction.amount >= 0) return "Deposit";
       return "Withdrawal";
-    },
-    getAssociatedAccount(transaction) {
-      // Show the counterparty (the one that isn't the main account)
-      // You could enhance this with currentAccount info if needed
-      return "You";
     },
   },
 };
