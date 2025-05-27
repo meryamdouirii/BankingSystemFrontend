@@ -8,6 +8,7 @@
           <th>From</th>
           <th>To</th>
           <th>Amount</th>
+          <th>Initiated by</th>
         </tr>
       </thead>
       <tbody>
@@ -16,10 +17,21 @@
           <td>{{ transaction.description }}</td>
           <td>{{ transaction.from }}</td>
           <td>{{ transaction.to }}</td>
-          <td class="amount">{{ transaction.amount }}</td>
+          <td
+            :class="[
+              'amount',
+              transaction.amount < 0 ? 'negative' : 'positive',
+            ]"
+          >
+            €
+            {{ Math.abs(transaction.amount).toFixed(2) }}
+            <span class="type-text">({{ getType(transaction) }})</span>
+          </td>
+          <td>{{ transaction.initiatorName }}</td>
+          <!-- Changed this line -->
         </tr>
         <tr v-if="transactions.length === 0">
-          <td colspan="5" class="no-results">
+          <td colspan="6" class="no-results">
             No transactions found matching your filters
           </td>
         </tr>
@@ -34,6 +46,13 @@ export default {
     transactions: {
       type: Array,
       required: true,
+    },
+  },
+
+  methods: {
+    getType(transaction) {
+      if (transaction.amount >= 0) return "Deposit";
+      return "Withdrawal";
     },
   },
 };
