@@ -1,6 +1,7 @@
 <template>
   <div class="container-fluid account-bg pb-5">
     <div class="container py-4">
+      <h1 class="text-center mb-4">Hi {{customer.firstname}}</h1>
       <template v-if="hasAccounts">
         <ActionButtons />
         <OverviewHeader />
@@ -28,7 +29,11 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import axios from '../../axios-auth';
+import { useAuthStore } from '../../stores/auth'; 
 import { useRoute } from 'vue-router';
+
+
+const auth = useAuthStore(); // Pinia store instance
 import OverviewHeader from './OverviewHeader.vue';
 import TotalBalanceCard from './TotalBalanceCard.vue';
 import ActionButtons from './ActionButtons.vue';
@@ -45,7 +50,12 @@ const error = ref(null);
 const fetchUserData = async () => {
   try {
     loading.value = true;
-    const response = await axios.get(`users/${route.params.id || 10}`);
+    if(!auth.userId) {
+      error.value = "User not authenticated";
+      return;
+    }
+
+    const response = await axios.get(`/users/${auth.userId}`);
     customer.value = response.data;
     
     checkingAccount.value = response.data.accounts?.find(acc => acc.type === 'CHECKING');
