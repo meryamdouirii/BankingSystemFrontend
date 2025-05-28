@@ -5,16 +5,16 @@
         <ActionButtons />
         <OverviewHeader />
         <TotalBalanceCard :balance="combinedBalance" />
-        <AccountSection 
-          title="Payment" 
-          :account="checkingAccount" 
-          :customer="customer" 
+        <AccountSection
+          title="Payment"
+          :account="checkingAccount"
+          :customer="customer"
           accountType="Centjesbank Checking Account"
         />
-        <AccountSection 
-          title="Savings" 
-          :account="savingsAccount" 
-          :customer="customer" 
+        <AccountSection
+          title="Savings"
+          :account="savingsAccount"
+          :customer="customer"
           accountType="Centjesbank Savings"
         />
       </template>
@@ -47,10 +47,10 @@ const fetchUserData = async () => {
     loading.value = true;
     const response = await axios.get(`users/${route.params.id || 10}`);
     customer.value = response.data;
-    
+
     checkingAccount.value = response.data.accounts?.find(acc => acc.type === 'CHECKING');
     savingsAccount.value = response.data.accounts?.find(acc => acc.type === 'SAVINGS');
-    
+
   } catch (err) {
     error.value = "Could not load account information";
     console.error(err);

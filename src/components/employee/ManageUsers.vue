@@ -39,7 +39,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr v-for="user in filteredUsers" :key="user.id">
+                    <tr v-for="user in filteredUsers" class="clickable-row" :key="user.id" @click="editUser(user.id)">
                       <td>{{ user.email }}</td>
                       <td>{{ user.lastName }}, {{ user.firstName }}</td>
                       <td>{{ user.bsn }}</td>
@@ -49,7 +49,6 @@
                           :to="`/manage-user-accounts/${user.id}`"
                           class="btn-small"
                           :class="{ 'disabled-btn': !user.accounts || user.accounts.length === 0 }"
-                          :aria-disabled="!user.accounts || user.accounts.length === 0"
                           @click.prevent="!user.accounts || user.accounts.length === 0 ? null : null"
                         >
                           View Accounts
@@ -79,8 +78,8 @@
                               ? 'Handle'
                               : 'Rejected' }}
                         </button>
-                        <button :class="['btn-small', user._active ? 'deactivate' : 'activate']">
-                          {{ user._active ? 'Deactivate' : 'Activate' }}
+                        <button class="btn-small">
+                          Edit User
                         </button>
                       </td>
                     </tr>
@@ -94,7 +93,7 @@
                 :user="selectedUser"
                 @close="closeRequestModal"
                 @done="handleDone"/>
-            
+
           </div>
         </div>
       </div>
@@ -110,7 +109,7 @@ import HandleRequest from "./request/HandleRequest.vue";
 
 const breadcrumbs = ref([
   { name: 'Home', link: '/' },
-  { name: 'Manage Users', link: null }  
+  { name: 'Manage Users', link: null }
 ])
 
 const users = ref([]);
@@ -149,8 +148,8 @@ const closeRequestModal = () => {
 };
 
 const handleDone = async () => {
-  await fetchUsers();  
-  closeRequestModal();        
+  await fetchUsers();
+  closeRequestModal();
 };
 const filteredUsers = computed(() => {
   const term = searchTerm.value.toLowerCase();
