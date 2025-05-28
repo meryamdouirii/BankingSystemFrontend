@@ -1,10 +1,8 @@
 <template>
   <div class="container-fluid account-bg pb-5">
     <div class="container py-4">
-      <h1 class="text-center mb-4">Hi {{customer.firstname}}</h1>
       <template v-if="hasAccounts">
         <ActionButtons />
-        <OverviewHeader />
         <TotalBalanceCard :balance="combinedBalance" />
         <AccountSection 
           title="Payment" 
@@ -34,7 +32,6 @@ import { useRoute } from 'vue-router';
 
 
 const auth = useAuthStore(); // Pinia store instance
-import OverviewHeader from './OverviewHeader.vue';
 import TotalBalanceCard from './TotalBalanceCard.vue';
 import ActionButtons from './ActionButtons.vue';
 import AccountSection from './AccountSection.vue';
@@ -83,7 +80,11 @@ onMounted(fetchUserData);
 
 <style scoped>
 .account-bg {
-  background: linear-gradient(135deg, #c494e1 0%, #a259c6 100%);
+  background: white;
   min-height: 100vh;
+}
+
+.text-primary {
+  color: #6c63ff !important;
 }
 </style>
