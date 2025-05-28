@@ -146,9 +146,10 @@ const fetchUser = async () => {
 const updateLimit = async (accountId, account) => {
   updatedAccountId.value = accountId;
   accountLimitUpdated.value = false;
+  accountStatusUpdated.value = false;
   try {
     await axios.put(`accounts/${accountId}`, account);
-    
+
     accountLimitUpdateMessageType.value = 'success';
     accountLimitUpdateMessage.value = 'Account limit updated successfully.';
 
@@ -163,6 +164,7 @@ const updateLimit = async (accountId, account) => {
 const toggleAccountStatus = async (account) => {
   updatedAccountId.value = account.id;
   accountStatusUpdated.value = false;
+  accountLimitUpdated.value = false;
   try {
     const newStatus = account.status === 'ACTIVE' ? 'CLOSED' : 'ACTIVE';
     await axios.put(`accounts/${account.id}`, { ...account, status: newStatus });

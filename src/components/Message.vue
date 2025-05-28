@@ -29,7 +29,7 @@ const props = defineProps({
 .message {
     text-align: center;
     color:#ffffff;
-    margin: 0;
+    margin: 5px;
     font-weight:bold;
 }
 div.error {
@@ -41,7 +41,7 @@ div.info {
     background-color: #ffffff;
 }
 div.success {
-    border-color: rgb(40, 167, 69); 
+    border-color: rgb(40, 167, 69);
     background-color: #ffffff;
 }
 p.success{
