@@ -26,12 +26,6 @@
         <div class="fs-4 fw-bold mt-2">€ {{ account.balance.toFixed(2) }}</div>
       </div>
     </div>
-    <div class="account-card card shadow-sm rounded-4 p-3 bg-gray">
-      <h6 class="text-primary">{{ accountType }}</h6>
-      <div class="text-muted small">Name: {{ customer.firstName }} {{ customer.lastName }}</div>
-      <div class="text-muted small">IBAN: <span class="text-monospace">{{ account.iban }}</span></div>
-      <div class="fs-4 fw-bold mt-2">€ {{ account.balance.toFixed(2) }}</div>
-    </div>
   </div>
 
   <div v-else class="mb-4">
