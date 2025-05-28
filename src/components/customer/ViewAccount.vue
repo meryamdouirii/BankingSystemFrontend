@@ -3,7 +3,6 @@
     <div class="container py-4">
       <template v-if="hasAccounts">
         <ActionButtons />
-        <OverviewHeader />
         <TotalBalanceCard :balance="combinedBalance" />
         <AccountSection
           title="Payment"
@@ -28,8 +27,11 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import axios from '../../axios-auth';
+import { useAuthStore } from '../../stores/auth'; 
 import { useRoute } from 'vue-router';
-import OverviewHeader from './OverviewHeader.vue';
+
+
+const auth = useAuthStore(); // Pinia store instance
 import TotalBalanceCard from './TotalBalanceCard.vue';
 import ActionButtons from './ActionButtons.vue';
 import AccountSection from './AccountSection.vue';
@@ -45,7 +47,12 @@ const error = ref(null);
 const fetchUserData = async () => {
   try {
     loading.value = true;
-    const response = await axios.get(`users/${route.params.id || 10}`);
+    if(!auth.userId) {
+      error.value = "User not authenticated";
+      return;
+    }
+
+    const response = await axios.get(`/users/${auth.userId}`);
     customer.value = response.data;
 
     checkingAccount.value = response.data.accounts?.find(acc => acc.type === 'CHECKING');
@@ -73,7 +80,11 @@ onMounted(fetchUserData);
 
 <style scoped>
 .account-bg {
-  background: linear-gradient(135deg, #c494e1 0%, #a259c6 100%);
+  background: white;
   min-height: 100vh;
+}
+
+.text-primary {
+  color: #6c63ff !important;
 }
 </style>

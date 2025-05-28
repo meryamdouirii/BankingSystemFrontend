@@ -13,6 +13,7 @@
 <script>
 import TransactionFilters from "./TransactionFilters.vue";
 import TransactionTable from "./TransactionTable.vue";
+import axios from "../../../axios-auth";
 
 export default {
   components: {
@@ -21,43 +22,9 @@ export default {
   },
   data() {
     return {
-      transactions: [
-        {
-          date: "20/05/2023",
-          description: "Monthly rent payment",
-          from: "NL91ABNA0417164390",
-          to: "NL201NGB0801234567",
-          amount: "€500.00",
-        },
-        {
-          date: "15/05/2023",
-          description: "Grocery shopping",
-          from: "NL201NGB0801234567",
-          to: "NL91ABNA0417164390",
-          amount: "€35.50",
-        },
-        {
-          date: "10/05/2023",
-          description: "Salary payment",
-          from: "NL91ABNA0417164390",
-          to: "DE89378408440532813000",
-          amount: "€1200.00",
-        },
-        {
-          date: "05/05/2023",
-          description: "Online purchase",
-          from: "NL201NGB0801234567",
-          to: "FR7638086808011234567890189",
-          amount: "€75.20",
-        },
-        {
-          date: "28/04/2023",
-          description: "Insurance payment",
-          from: "FR7638086808011234567890189",
-          to: "NL91ABNA0417164390",
-          amount: "€250.00",
-        },
-      ],
+      transactions: [],
+      loading: false,
+      error: null,
       filters: {
         dateRange: { start: null, end: null },
         amountCondition: null,
@@ -72,9 +39,7 @@ export default {
       return this.transactions.filter((transaction) => {
         // Date range filter
         if (this.filters.dateRange.start && this.filters.dateRange.end) {
-          const transactionDate = new Date(
-            transaction.date.split("/").reverse().join("-")
-          );
+          const transactionDate = new Date(transaction.dateTime);
           const startDate = new Date(this.filters.dateRange.start);
           const endDate = new Date(this.filters.dateRange.end);
 
@@ -85,9 +50,7 @@ export default {
 
         // Amount filter
         if (this.filters.amountCondition && this.filters.amountValue) {
-          const transactionAmount = parseFloat(
-            transaction.amount.replace("€", "").replace(",", "")
-          );
+          const transactionAmount = transaction.amount;
           const filterAmount = parseFloat(this.filters.amountValue);
 
           switch (this.filters.amountCondition) {
@@ -107,8 +70,8 @@ export default {
         if (this.filters.ibanDirection && this.filters.ibanNumber) {
           const ibanToCheck =
             this.filters.ibanDirection === "from"
-              ? transaction.from
-              : transaction.to;
+              ? transaction.sender_iban
+              : transaction.receiver_iban;
 
           if (!ibanToCheck.includes(this.filters.ibanNumber)) {
             return false;
@@ -123,6 +86,38 @@ export default {
     handleFilterChange(newFilters) {
       this.filters = { ...this.filters, ...newFilters };
     },
+    async fetchTransactions() {
+      this.loading = true;
+      this.error = null;
+
+      try {
+        const response = await axios.get("/transactions/my", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`, // Add auth token if needed
+          },
+        });
+
+        // Transform API data to match your component's expected format
+        this.transactions = response.data.map((transaction) => ({
+          id: transaction.id,
+          date: new Date(transaction.dateTime).toLocaleDateString("en-GB"), // Format as DD/MM/YYYY
+          dateTime: transaction.dateTime, // Keep original for filtering
+          description: transaction.description,
+          from: transaction.sender_iban,
+          to: transaction.receiver_iban,
+          amount: transaction.amount,
+          initiatorName: transaction.initiatorName,
+        }));
+      } catch (err) {
+        console.error("Error fetching transactions:", err);
+        this.error = "Failed to load transactions. Please try again later.";
+      } finally {
+        this.loading = false;
+      }
+    },
+  },
+  mounted() {
+    this.fetchTransactions();
   },
 };
 </script>
