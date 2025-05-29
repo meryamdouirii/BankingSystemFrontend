@@ -3,9 +3,21 @@
     <div class="transaction-overview">
       <h2>Transaction History</h2>
 
-      <TransactionFilters @filter-changed="handleFilterChange" />
+      <TransactionFilters
+        @filter-changed="handleFilterChange"
+        @reset-filters="resetFilters"
+      />
 
-      <TransactionTable :transactions="filteredTransactions" />
+      <div v-if="loading" class="loading-message">Loading transactions...</div>
+      <div v-if="error" class="error-message">{{ error }}</div>
+
+      <TransactionTable
+        :transactions="currentPageTransactions"
+        :total-items="totalTransactions"
+        :current-page="currentPage"
+        :items-per-page="itemsPerPage"
+        @page-changed="handlePageChange"
+      />
     </div>
   </div>
 </template>
@@ -25,89 +37,90 @@ export default {
       transactions: [],
       loading: false,
       error: null,
+      currentPage: 1,
+      itemsPerPage: 10,
+      totalTransactions: 0,
       filters: {
-        dateRange: { start: null, end: null },
-        amountCondition: null,
-        amountValue: null,
-        ibanDirection: null,
-        ibanNumber: null,
+        startDate: null,
+        endDate: null,
+        amount: null,
+        amountFilterType: null, // 'greater', 'less', or 'equal'
+        ibanContains: null,
       },
     };
   },
   computed: {
-    filteredTransactions() {
-      return this.transactions.filter((transaction) => {
-        // Date range filter
-        if (this.filters.dateRange.start && this.filters.dateRange.end) {
-          const transactionDate = new Date(transaction.dateTime);
-          const startDate = new Date(this.filters.dateRange.start);
-          const endDate = new Date(this.filters.dateRange.end);
-
-          if (transactionDate < startDate || transactionDate > endDate) {
-            return false;
-          }
-        }
-
-        // Amount filter
-        if (this.filters.amountCondition && this.filters.amountValue) {
-          const transactionAmount = transaction.amount;
-          const filterAmount = parseFloat(this.filters.amountValue);
-
-          switch (this.filters.amountCondition) {
-            case "greater":
-              if (transactionAmount <= filterAmount) return false;
-              break;
-            case "less":
-              if (transactionAmount >= filterAmount) return false;
-              break;
-            case "equal":
-              if (transactionAmount !== filterAmount) return false;
-              break;
-          }
-        }
-
-        // IBAN filter
-        if (this.filters.ibanDirection && this.filters.ibanNumber) {
-          const ibanToCheck =
-            this.filters.ibanDirection === "from"
-              ? transaction.sender_iban
-              : transaction.receiver_iban;
-
-          if (!ibanToCheck.includes(this.filters.ibanNumber)) {
-            return false;
-          }
-        }
-
-        return true;
-      });
+    currentPageTransactions() {
+      return this.transactions;
     },
   },
   methods: {
-    handleFilterChange(newFilters) {
+    async handleFilterChange(newFilters) {
       this.filters = { ...this.filters, ...newFilters };
+      this.currentPage = 1; // Reset to first page when filters change
+      await this.fetchTransactions();
     },
+
+    resetFilters() {
+      this.filters = {
+        startDate: null,
+        endDate: null,
+        amount: null,
+        amountFilterType: null,
+        ibanContains: null,
+      };
+      this.currentPage = 1;
+      this.fetchTransactions();
+    },
+
+    handlePageChange(page) {
+      this.currentPage = page;
+      this.fetchTransactions();
+    },
+
     async fetchTransactions() {
       this.loading = true;
       this.error = null;
 
       try {
+        // Convert amount to number if it exists
+        const amount = this.filters.amount ? Number(this.filters.amount) : null;
+
+        // Build query parameters
+        const params = {
+          page: this.currentPage - 1, // Spring pages are 0-indexed
+          size: this.itemsPerPage,
+          ...(this.filters.startDate && { startDate: this.filters.startDate }),
+          ...(this.filters.endDate && { endDate: this.filters.endDate }),
+          ...(amount && { amount: amount }),
+          ...(this.filters.amountFilterType && {
+            amountFilterType: this.filters.amountFilterType.toUpperCase(),
+          }),
+          ...(this.filters.ibanContains && {
+            ibanContains: this.filters.ibanContains,
+          }),
+        };
+
         const response = await axios.get("/transactions/my", {
+          params,
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`, // Add auth token if needed
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         });
 
-        // Transform API data to match your component's expected format
-        this.transactions = response.data.map((transaction) => ({
+        // Transform API data
+        this.transactions = response.data.content.map((transaction) => ({
           id: transaction.id,
-          date: new Date(transaction.dateTime).toLocaleDateString("en-GB"), // Format as DD/MM/YYYY
-          dateTime: transaction.dateTime, // Keep original for filtering
+          date: new Date(transaction.dateTime).toLocaleDateString("en-GB"),
+          dateTime: transaction.dateTime,
           description: transaction.description,
-          from: transaction.sender_iban,
-          to: transaction.receiver_iban,
+          senderIban: transaction.sender_iban,
+          receiverIban: transaction.receiver_iban,
           amount: transaction.amount,
           initiatorName: transaction.initiatorName,
         }));
+
+        this.totalTransactions = response.data.totalElements;
       } catch (err) {
         console.error("Error fetching transactions:", err);
         this.error = "Failed to load transactions. Please try again later.";

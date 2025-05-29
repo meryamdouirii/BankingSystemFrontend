@@ -15,8 +15,8 @@
         <tr v-for="(transaction, index) in transactions" :key="index">
           <td>{{ transaction.date }}</td>
           <td>{{ transaction.description }}</td>
-          <td>{{ transaction.from }}</td>
-          <td>{{ transaction.to }}</td>
+          <td>{{ transaction.senderIban }}</td>
+          <td>{{ transaction.receiverIban }}</td>
           <td
             :class="[
               'amount',
@@ -28,7 +28,6 @@
             <span class="type-text">({{ getType(transaction) }})</span>
           </td>
           <td>{{ transaction.initiatorName }}</td>
-          <!-- Changed this line -->
         </tr>
         <tr v-if="transactions.length === 0">
           <td colspan="6" class="no-results">
@@ -57,7 +56,6 @@ export default {
   },
 };
 </script>
-
 <style scoped>
 .transaction-table {
   overflow-x: auto;
