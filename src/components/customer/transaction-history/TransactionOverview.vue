@@ -12,7 +12,7 @@
       <div v-if="error" class="error-message">{{ error }}</div>
 
       <TransactionTable
-        :transactions="currentPageTransactions"
+        :transactions="transactions"
         :total-items="totalTransactions"
         :current-page="currentPage"
         :items-per-page="itemsPerPage"
@@ -44,15 +44,10 @@ export default {
         startDate: null,
         endDate: null,
         amount: null,
-        amountFilterType: null, // 'greater', 'less', or 'equal'
+        amountFilterType: null,
         ibanContains: null,
       },
     };
-  },
-  computed: {
-    currentPageTransactions() {
-      return this.transactions;
-    },
   },
   methods: {
     async handleFilterChange(newFilters) {

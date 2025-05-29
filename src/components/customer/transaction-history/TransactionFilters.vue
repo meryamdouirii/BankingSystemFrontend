@@ -138,6 +138,13 @@ export default {
       this.$emit("filter-changed", apiFilters);
     },
   },
+  watch: {
+    "localFilters.amountFilterType"(newVal) {
+      if (!newVal) {
+        this.localFilters.amount = null;
+      }
+    },
+  },
 };
 </script>
 
