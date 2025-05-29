@@ -9,6 +9,9 @@
           <router-link to="/manage-users">Manage Users</router-link>
         </li>
         <li class="breadcrumb-item">
+          <router-link :to="`/manage-user/${user?.id}`">{{ user?.firstName }} {{ user?.lastName }}</router-link>
+        </li>
+        <li class="breadcrumb-item">
           <span>Accounts</span>
         </li>
       </ol>
@@ -44,18 +47,19 @@
                   <!-- Absolute Limit -->
                   <div class="col-md-3 d-flex">
                     <div class="card flex-fill">
+                      <Message
+                      v-if="accountLimitUpdated && account.id === updatedAccountId"
+                      :type="accountLimitUpdateMessageType"
+                      :message="accountLimitUpdateMessage"
+                      class="mt-3"
+                      ></Message>
                       <div class="card-body d-flex flex-column align-items-center justify-content-center">
+
                         <label>Absolute Limit</label>
                         <input type="number" step="0.01" class="form-control form-control-sm mt-3" v-model="account.accountLimit" />
                         <div class="d-flex justify-content-center mt-3">
                           <button class="btn-small" @click="updateLimit(account.id, account)">Update limit</button>
                         </div>
-                        <Message
-                          v-if="accountLimitUpdated && account.id === updatedAccountId"
-                          :type="accountLimitUpdateMessageType"
-                          :message="accountLimitUpdateMessage"
-                          class="mt-3"
-                          ></Message>
                       </div>
                     </div>
                   </div>
@@ -63,6 +67,13 @@
                   <!-- (de)activate Account -->
                   <div class="col-md-3 d-flex">
                     <div class="card flex-fill">
+                       <!-- Message -->
+                          <Message
+                          v-if="accountStatusUpdated && account.id === updatedAccountId"
+                          :type="accountStatusUpdateMessageType"
+                          :message="accountStatusUpdateMessage"
+                          class="mt-3"
+                          ></Message>
                       <div class="card-body d-flex flex-column align-items-center justify-content-center">
                         <label>{{account.status === "ACTIVE" ? "Close account" : "Open account" }}</label>
                         <div class="d-flex justify-content-center mt-4">
@@ -74,13 +85,6 @@
                             {{ account.status === 'ACTIVE' ? 'Close' : 'Open' }}
                           </button>
                         </div>
-                          <!-- Error Message -->
-                          <Message
-                          v-if="accountStatusUpdated && account.id === updatedAccountId"
-                          :type="accountStatusUpdateMessageType"
-                          :message="accountStatusUpdateMessage"
-                          class="mt-3"
-                          ></Message>
                       </div>
                     </div>
                   </div>

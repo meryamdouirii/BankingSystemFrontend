@@ -7,6 +7,7 @@ import ManageUsers from "../components/employee/ManageUsers.vue";
 import ViewAccount from "@/components/customer/ViewAccount.vue";
 import TransactionHistory from "@/components/customer/transaction-history/TransactionOverview.vue";
 import ManageUserAccounts from "../components/employee/AccountView.vue"
+import ManageUser from "../components/employee/UserView.vue";
 const routes = [
   { path: "/", component: Home },
   { path: "/manage-users", component: ManageUsers },
@@ -15,6 +16,7 @@ const routes = [
   { path: "/view-account", component: ViewAccount },
   { path: "/transactionhistory", component: TransactionHistory },
   { path: "/manage-user-accounts/:id", component: ManageUserAccounts },
+  { path: "/manage-user/:id", component: ManageUser },
 ];
 
 const router = createRouter({
@@ -33,6 +35,6 @@ router.beforeEach((to, from, next) => {
   }
   next();
 });
-  
+
 
 export default router;

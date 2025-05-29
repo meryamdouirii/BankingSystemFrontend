@@ -39,13 +39,14 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr v-for="user in filteredUsers" class="clickable-row" :key="user.id" @click="editUser(user.id)">
+                    <tr v-for="user in filteredUsers" class="clickable-row" :key="user.id" @click="navigateToEditUser(user.id)">
                       <td>{{ user.email }}</td>
                       <td>{{ user.lastName }}, {{ user.firstName }}</td>
                       <td>{{ user.bsn }}</td>
                       <td>{{ user.phoneNumber }}</td>
                       <td>
                         <router-link
+                        @click.stop="openRequestModal(user)"
                           :to="`/manage-user-accounts/${user.id}`"
                           class="btn-small"
                           :class="{ 'disabled-btn': !user.accounts || user.accounts.length === 0 }"
@@ -63,6 +64,7 @@
                       </td>
                       <td class="text-center">
                         <button
+                        @click.stop="openRequestModal(user)"
                           :class="[
                             'btn-small',
                             user.approval_status === 'PENDING'
@@ -78,9 +80,13 @@
                               ? 'Handle'
                               : 'Rejected' }}
                         </button>
-                        <button class="btn-small">
-                          Edit User
-                        </button>
+                        <router-link
+                          @click.stop="openRequestModal(user)"
+                          :to="`/manage-user/${user.id}`"
+                          class="btn-small"
+                        >
+                        Edit User
+                        </router-link>
                       </td>
                     </tr>
                   </tbody>
@@ -103,6 +109,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from "vue";
+import { useRouter } from "vue-router";
 import axios from "../../axios-auth";
 import AccountView from "./AccountView.vue";
 import HandleRequest from "./request/HandleRequest.vue";
@@ -136,7 +143,11 @@ const fetchUsers = async () => {
 
 const showRequestModal = ref(false);
 const selectedUser = ref(null);
+const router = useRouter();
 
+const navigateToEditUser = (userId) => {
+  router.push(`/manage-user/${userId}`);
+};
 const openRequestModal = (user) => {
   selectedUser.value = user;
   showRequestModal.value = true;
