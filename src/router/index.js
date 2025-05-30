@@ -1,4 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
+import { useAuthStore } from "../stores/auth";
+import { computed } from "vue";
 
 import Home from "../components/Home.vue";
 import Login from "../components/Login.vue";
@@ -31,15 +33,16 @@ const router = createRouter({
 // Navigation guard to check authentication
 // This guard checks if the user is authenticated before accessing certain routes
 router.beforeEach((to, from, next) => {
-  const loggedIn = localStorage.getItem("auth_token");
-  const userRole = localStorage.getItem("user_role");
+  const authStore = useAuthStore();
+  const userRole = computed(() => authStore.userRole);
+  const loggedIn = computed(() => !!authStore.token);
 
   if (to.meta?.authRequired) {
-    if (!loggedIn) {
+    if (!loggedIn.value) {
       return next("/login");
     }
 
-    if (to.meta?.roles && !to.meta.roles.includes(userRole)) {
+    if (to.meta?.roles && !to.meta.roles.includes(userRole.value)) {
       return next("/403-forbidden");
     }
   }
