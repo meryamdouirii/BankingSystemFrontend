@@ -8,15 +8,20 @@ import ViewAccount from "@/components/customer/ViewAccount.vue";
 import TransactionHistory from "@/components/transactions/TransactionOverview.vue";
 import ManageUserAccounts from "../components/employee/AccountView.vue";
 import ManageUser from "../components/employee/UserView.vue";
+import Forbidden from "../components/Forbidden.vue";
 const routes = [
-  { path: "/", component: Home },
-  { path: "/manage-users", component: ManageUsers },
-  { path: "/login", component: Login },
-  { path: "/register", component: Register },
-  { path: "/view-account", component: ViewAccount },
-  { path: "/transactionhistory", component: TransactionHistory },
-  { path: "/manage-user-accounts/:id", component: ManageUserAccounts },
-  { path: "/manage-user/:id", component: ManageUser },
+  { path: "/", component: Home, meta: {authRequired:false} },
+  {path: "/403-forbidden", component: Forbidden , meta: {authRequired:false}},
+  { path: "/manage-users", component: ManageUsers, meta: {authRequired:true, roles:["ROLE_ADMINISTRATOR","ROLE_EMPLOYEE"]} },
+  { path: "/login", component: Login , meta: {authRequired:false}},
+  { path: "/register", component: Register , meta: {authRequired:false}},
+  { path: "/view-account", component: ViewAccount ,meta:{
+    authRequired: true, roles: ["ROLE_CUSTOMER"]
+  }},
+  { path: "/transactionhistory", component: TransactionHistory, meta: {authRequired:true, roles:["ROLE_CUSTOMER"]} },
+  { path: "/manage-user-accounts/:id", component: ManageUserAccounts, meta: {authRequired:true, roles:["ROLE_ADMINISTRATOR","ROLE_EMPLOYEE"]} },
+  { path: "/manage-user/:id", component: ManageUser, meta: {authRequired:true, roles:["ROLE_ADMINISTRATOR","ROLE_EMPLOYEE"]} },
+
 ];
 
 const router = createRouter({
@@ -26,14 +31,21 @@ const router = createRouter({
 // Navigation guard to check authentication
 // This guard checks if the user is authenticated before accessing certain routes
 router.beforeEach((to, from, next) => {
-  const publicPages = ["/login", "/register", "/"];
-  const authRequired = !publicPages.includes(to.path);
   const loggedIn = localStorage.getItem("auth_token");
+  const userRole = localStorage.getItem("user_role");
 
-  if (authRequired && !loggedIn) {
-    return next("/login");
+  if (to.meta?.authRequired) {
+    if (!loggedIn) {
+      return next("/login");
+    }
+
+    if (to.meta?.roles && !to.meta.roles.includes(userRole)) {
+      return next("/403-forbidden");
+    }
   }
-  next();
+
+  return next();
 });
+
 
 export default router;
