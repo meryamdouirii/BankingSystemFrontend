@@ -45,7 +45,7 @@ export default {
         endDate: null,
         amount: null,
         amountFilterType: null,
-        ibanContains: null,
+        iban: null,
       },
     };
   },
@@ -62,7 +62,7 @@ export default {
         endDate: null,
         amount: null,
         amountFilterType: null,
-        ibanContains: null,
+        iban: null,
       };
       this.currentPage = 1;
       this.fetchTransactions();
@@ -91,8 +91,8 @@ export default {
           ...(this.filters.amountFilterType && {
             amountFilterType: this.filters.amountFilterType.toUpperCase(),
           }),
-          ...(this.filters.ibanContains && {
-            ibanContains: this.filters.ibanContains,
+          ...(this.filters.iban && {
+            iban: this.filters.iban,
           }),
         };
 

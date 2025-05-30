@@ -2,7 +2,7 @@
   <div class="transaction-filters">
     <h2>Filters</h2>
 
-    <!-- Always visible date range filter -->
+    <!-- Date range -->
     <div class="filter-section">
       <h3>Date Range</h3>
       <div class="date-range-filters">
@@ -17,7 +17,7 @@
       </div>
     </div>
 
-    <!-- Toggle for additional filters as clickable text -->
+    <!-- Toggle -->
     <div
       class="toggle-filters-text"
       @click="showMoreFilters = !showMoreFilters"
@@ -41,7 +41,7 @@
       </svg>
     </div>
 
-    <!-- Additional filters (foldable) -->
+    <!-- Additional filters -->
     <transition name="slide">
       <div v-if="showMoreFilters" class="additional-filters">
         <div class="filter-section">
@@ -49,10 +49,7 @@
           <div class="amount-filters">
             <div class="form-group">
               <label>Condition</label>
-              <select
-                v-model="localFilters.amountFilterType"
-                class="select-dark-text"
-              >
+              <select v-model="localFilters.amountFilterType">
                 <option value="">Select condition</option>
                 <option value="greater">Greater than</option>
                 <option value="less">Less than</option>
@@ -66,23 +63,25 @@
                 step="0.01"
                 v-model="localFilters.amount"
                 :disabled="!localFilters.amountFilterType"
-                class="input-dark-text"
                 :class="{ 'disabled-input': !localFilters.amountFilterType }"
               />
             </div>
           </div>
         </div>
 
+        <!-- Show modal -->
+        <button @click="modalVisible = true">Find Customer IBAN</button>
+
+        <!-- IBAN -->
         <div class="filter-section">
           <h3>IBAN Filter</h3>
           <div class="iban-filters">
             <div class="form-group">
-              <label>IBAN contains</label>
+              <label>IBAN</label>
               <input
                 type="text"
-                v-model="localFilters.ibanContains"
+                v-model="localFilters.iban"
                 placeholder="Enter partial IBAN"
-                class="input-dark-text"
               />
             </div>
           </div>
@@ -90,37 +89,43 @@
       </div>
     </transition>
 
-    <!-- Action buttons -->
+    <!-- Actions -->
     <div class="filter-actions">
       <button class="apply-filters" @click="applyFilters">Apply filters</button>
     </div>
+
+    <!-- Modal component -->
+    <CustomerSearchModal
+      v-if="modalVisible"
+      @customer-selected="handleCustomerSelection"
+      @close="modalVisible = false"
+    />
   </div>
 </template>
 
 <script>
+import CustomerSearchModal from "./CustomerSearchModal.vue";
+
 export default {
+  components: { CustomerSearchModal },
   data() {
     return {
       showMoreFilters: false,
+      modalVisible: false,
       localFilters: {
         startDate: null,
         endDate: null,
         amount: null,
         amountFilterType: null,
-        ibanContains: null,
+        iban: null,
       },
     };
   },
   methods: {
-    formatDate(field) {
-      if (this.localFilters[field]) {
-        // Format date to ISO string with time component
-        const date = new Date(this.localFilters[field]);
-        // Add time component (midnight)
-        this.localFilters[field] = date.toISOString();
-      }
+    handleCustomerSelection(customer) {
+      this.localFilters.iban = customer.iban;
+      this.modalVisible = false;
     },
-
     applyFilters() {
       const toISO = (dateStr) =>
         dateStr ? new Date(dateStr).toISOString() : null;
@@ -132,7 +137,7 @@ export default {
           ? parseFloat(this.localFilters.amount)
           : null,
         amountFilterType: this.localFilters.amountFilterType || null,
-        ibanContains: this.localFilters.ibanContains || null,
+        iban: this.localFilters.iban || null,
       };
 
       this.$emit("filter-changed", apiFilters);
@@ -140,14 +145,11 @@ export default {
   },
   watch: {
     "localFilters.amountFilterType"(newVal) {
-      if (!newVal) {
-        this.localFilters.amount = null;
-      }
+      if (!newVal) this.localFilters.amount = null;
     },
   },
 };
 </script>
-
 <style scoped>
 .transaction-filters {
   background-color: #6c63ff;
