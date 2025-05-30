@@ -1,9 +1,9 @@
 <template>
-  <div class="modal-overlay" @click.self="$emit('close')">
+  <div class="modal-overlay" @click.self="closeModal">
     <div class="modal-content">
       <div class="modal-header">
         <h3>Search Customer IBAN</h3>
-        <button @click="$emit('close')">×</button>
+        <button @click="closeModal">×</button>
       </div>
       <div class="modal-body">
         <label>Enter customer name</label>
@@ -12,95 +12,141 @@
             type="text"
             v-model="searchQuery"
             placeholder="Enter customer name..."
+            @keyup.enter="searchCustomers"
           />
-          <button class="search-btn" @click="searchCustomers">Search</button>
+          <button
+            class="search-btn"
+            @click="searchCustomers"
+            :disabled="searchQuery.trim().length < 3"
+          >
+            Search
+          </button>
         </div>
 
-        <div v-if="isLoading">Searching...</div>
-        <div v-else-if="filteredCustomers.length === 0 && searchQuery">
-          No customers found
+        <div v-if="isLoading" class="loading-message">Searching...</div>
+        <div v-else-if="errorMessage" class="error-message">
+          {{ errorMessage }}
+        </div>
+        <div
+          v-else-if="filteredAccounts.length === 0 && hasSearched"
+          class="no-results"
+        >
+          No accounts found
         </div>
 
         <div v-else>
           <div
-            v-for="customer in filteredCustomers"
-            :key="customer.id"
+            v-for="account in filteredAccounts"
+            :key="account.iban"
             class="result-item"
-            @click="selectCustomer(customer)"
           >
-            <strong>{{ customer.name }}</strong> – {{ customer.iban }} ({{
-              customer.accountType
-            }})
+            <div class="account-info">
+              <strong>{{ account.userName }}</strong> –
+              {{ formatIban(account.iban) }} ({{ account.accountType }})
+            </div>
+            <button class="select-btn" @click="selectAccount(account)">
+              Select
+            </button>
           </div>
         </div>
       </div>
       <div class="modal-footer">
-        <button @click="$emit('close')">Close</button>
+        <button @click="closeModal">Close</button>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import axios from "../../axios-auth";
+
 export default {
   name: "CustomerSearchModal",
+  props: {},
   data() {
     return {
       searchQuery: "",
       isLoading: false,
-      customers: [
-        {
-          id: 1,
-          name: "John Doe",
-          iban: "DE89370400440532013000",
-          accountType: "Personal",
-        },
-        {
-          id: 2,
-          name: "Jane Smith",
-          iban: "GB29NWBK60161331926819",
-          accountType: "Business",
-        },
-        {
-          id: 3,
-          name: "Acme Corp",
-          iban: "FR1420041010050500013M02606",
-          accountType: "Corporate",
-        },
-        {
-          id: 4,
-          name: "Michael Johnson",
-          iban: "IT60X0542811101000000123456",
-          accountType: "Personal",
-        },
-        {
-          id: 5,
-          name: "Sarah Williams",
-          iban: "NL91ABNA0417164300",
-          accountType: "Business",
-        },
-      ],
-      filteredCustomers: [],
+      errorMessage: "",
+      filteredAccounts: [],
+      hasSearched: false, // Add this flag
     };
   },
   methods: {
-    searchCustomers() {
+    async searchCustomers() {
+      const trimmedQuery = this.searchQuery.trim();
+
+      if (trimmedQuery.length < 3) {
+        this.errorMessage = "Please enter at least 3 characters to search.";
+        this.filteredAccounts = [];
+        this.hasSearched = false; // Reset if invalid search
+        return;
+      }
+
       this.isLoading = true;
-      setTimeout(() => {
-        const query = this.searchQuery.trim().toLowerCase();
-        this.filteredCustomers = this.customers.filter((customer) =>
-          customer.name.toLowerCase().includes(query)
-        );
+      this.errorMessage = "";
+      this.hasSearched = true; // Set true when search is triggered
+
+      try {
+        const response = await axios.get("/users/find", {
+          params: { name: trimmedQuery },
+        });
+
+        this.filteredAccounts = response.data.accounts;
+      } catch (error) {
+        console.error("Search failed:", error);
+        this.errorMessage = "Failed to search. Please try again.";
+        this.filteredAccounts = [];
+      } finally {
         this.isLoading = false;
-      }, 300);
+      }
     },
-    selectCustomer(customer) {
-      this.$emit("customer-selected", customer);
+
+    formatIban(iban) {
+      return iban.replace(/(.{4})/g, "$1 ").trim();
+    },
+
+    selectAccount(account) {
+      this.$emit("customer-selected", account);
+    },
+
+    closeModal() {
+      this.$emit("close");
     },
   },
 };
 </script>
+
 <style scoped>
+.search-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.result-item {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.select-btn {
+  padding: 6px 12px;
+  background-color: #ffffff;
+  color: #6c63ff;
+  border: 1px solid #6c63ff;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.select-btn:hover {
+  background-color: #6c63ff;
+  color: #fff;
+  border-color: #6c63ff;
+}
 .search-container {
   display: flex;
   gap: 10px;
@@ -244,7 +290,7 @@ export default {
 .modal-body .loading-message,
 .modal-body .no-results {
   padding: 12px;
-  color: #666;
+  color: #ffffff;
   font-style: italic;
   text-align: center;
 }

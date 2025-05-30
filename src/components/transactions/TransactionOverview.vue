@@ -25,7 +25,7 @@
 <script>
 import TransactionFilters from "./TransactionFilters.vue";
 import TransactionTable from "./TransactionTable.vue";
-import axios from "../../../axios-auth";
+import axios from "../../axios-auth";
 
 export default {
   components: {

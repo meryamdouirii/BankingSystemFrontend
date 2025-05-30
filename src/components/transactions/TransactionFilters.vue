@@ -69,15 +69,16 @@
           </div>
         </div>
 
-        <!-- Show modal -->
-        <button @click="modalVisible = true">Find Customer IBAN</button>
-
         <!-- IBAN -->
         <div class="filter-section">
           <h3>IBAN Filter</h3>
           <div class="iban-filters">
             <div class="form-group">
               <label>IBAN</label>
+              <!-- Show modal -->
+              <button class="link-button" @click="modalVisible = true">
+                Find Customer IBAN
+              </button>
               <input
                 type="text"
                 v-model="localFilters.iban"
@@ -151,6 +152,24 @@ export default {
 };
 </script>
 <style scoped>
+.link-button {
+  background-color: white;
+  color: #6c63ff;
+  border: none;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-block;
+  margin-bottom: 5px;
+}
+
+.link-button:hover {
+  background-color: #f0f0f0;
+  transform: translateY(-1px);
+}
 .transaction-filters {
   background-color: #6c63ff;
   padding: 20px;
