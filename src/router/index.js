@@ -20,7 +20,8 @@ const routes = [
   { path: "/view-account", component: ViewAccount ,meta:{
     authRequired: true, roles: ["ROLE_CUSTOMER"]
   }},
-  { path: "/transactionhistory", component: TransactionHistory, meta: {authRequired:true, roles:["ROLE_CUSTOMER"]} },
+  { path: "/transactionhistory/:account_id", component: TransactionHistory, meta: {authRequired:true}},
+  { path: "/transactionhistory", component: TransactionHistory, meta: {authRequired:true}},
   { path: "/manage-user-accounts/:id", component: ManageUserAccounts, meta: {authRequired:true, roles:["ROLE_ADMINISTRATOR","ROLE_EMPLOYEE"]} },
   { path: "/manage-user/:id", component: ManageUser, meta: {authRequired:true, roles:["ROLE_ADMINISTRATOR","ROLE_EMPLOYEE"]} },
 

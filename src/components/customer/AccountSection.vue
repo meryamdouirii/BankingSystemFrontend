@@ -8,6 +8,7 @@
           'has-overlay': account.status === 'CLOSED',
           'no-hover': account.status === 'CLOSED'
         }"
+        @click="goToTransactionHistory(account)"
       >
         <!-- Overlay inside account-card -->
         <div v-if="account.status === 'CLOSED'" class="overlay"></div>
@@ -63,6 +64,10 @@
 
 </style>
 <script setup>
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
 defineProps({
   title: {
     type: String,
@@ -81,6 +86,12 @@ defineProps({
     required: true
   }
 });
+
+const goToTransactionHistory = (account) => {
+  if (account?.status !== 'CLOSED') {
+    router.push(`/transactionhistory/${account.id}`);
+  }
+};
 </script>
 
 <style scoped>

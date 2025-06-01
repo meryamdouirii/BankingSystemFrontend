@@ -27,12 +27,12 @@
           <td
             :class="[
               'amount',
-              transaction.amount < 0 ? 'negative' : 'positive',
+              currentAccountId == transaction.senderId ? 'negative' : 'positive',
             ]"
           >
-            €
-            {{ Math.abs(transaction.amount).toFixed(2) }}
-            <span class="type-text">({{ getType(transaction) }})</span>
+            <span>
+              {{ currentAccountId == transaction.senderId ? '-' : '+' }}€{{ Math.abs(transaction.amount).toFixed(2) }}
+            </span>
           </td>
           <td>{{ transaction.initiatorName }}</td>
         </tr>
@@ -77,6 +77,10 @@
 <script>
 export default {
   props: {
+    currentAccountId:{
+      type: Number,
+      required: true,
+    },
     transactions: {
       type: Array,
       required: true,

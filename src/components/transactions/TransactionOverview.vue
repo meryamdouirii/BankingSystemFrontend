@@ -12,6 +12,7 @@
       <div v-if="error" class="error-message">{{ error }}</div>
 
       <TransactionTable
+        :current-account-id="Number($route.params.account_id)"
         :transactions="transactions"
         :total-items="totalTransactions"
         :current-page="currentPage"
@@ -27,6 +28,8 @@ import TransactionFilters from "./TransactionFilters.vue";
 import TransactionTable from "./TransactionTable.vue";
 import axios from "../../axios-auth";
 
+
+
 export default {
   components: {
     TransactionFilters,
@@ -34,6 +37,7 @@ export default {
   },
   data() {
     return {
+      currentAccountId: Number(this.$route.params.account_id) || null,
       transactions: [],
       loading: false,
       error: null,
@@ -96,7 +100,17 @@ export default {
           }),
         };
 
-        const response = await axios.get("/transactions/my", {
+        const accountId = this.$route.params.account_id ? Number(this.$route.params.account_id) : null;
+
+        if (!accountId) {
+          this.error = "No account selected.";
+          this.loading = false;
+          return;
+        }
+
+        const endpoint = `/transactions/account/${accountId}`;
+
+        const response = await axios.get(endpoint, {
           params,
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -106,6 +120,7 @@ export default {
         // Transform API data
         this.transactions = response.data.content.map((transaction) => ({
           id: transaction.id,
+          senderId: transaction.sender_id,
           date: new Date(transaction.dateTime).toLocaleDateString("en-GB"),
           dateTime: transaction.dateTime,
           description: transaction.description,

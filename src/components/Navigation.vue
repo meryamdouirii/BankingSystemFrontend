@@ -57,15 +57,6 @@ function logout() {
           </router-link>
         </li>
         <li v-if="userRole === 'ROLE_CUSTOMER'" class="nav-item">
-          <router-link
-            to="/transactionhistory"
-            class="nav-link"
-            active-class="active"
-          >
-            Transaction History
-          </router-link>
-        </li>
-        <li v-if="userRole === 'ROLE_CUSTOMER'" class="nav-item">
           <router-link to="/view-account" class="nav-link" active-class="active"
             >View Account</router-link
           >
