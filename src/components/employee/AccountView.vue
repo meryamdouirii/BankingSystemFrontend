@@ -35,7 +35,7 @@
                     <div class="card flex-fill">
                       <div class="card-body">
                         <AccountSection
-                          :title="`Account ${index + 1}`"
+                          :title="account.type"
                           :account="account"
                           :customer="user"
                           :accountType="account.type"
@@ -105,7 +105,7 @@
 
 <script setup>
 import AccountSection from '../customer/AccountSection.vue';
-import { ref, onMounted, defineProps } from 'vue';
+import { ref, onMounted} from 'vue';
 import { useRoute } from 'vue-router';
 import axios from '../../axios-auth';
 import Message from '../Message.vue';
@@ -113,9 +113,7 @@ import Message from '../Message.vue';
 const loading = ref(true);
 const route = useRoute();
 const userId = route.params.id;
-const props = defineProps({
-  user: Object
-});
+
 
 const user = ref(null);
 const error = ref(null);
@@ -127,6 +125,7 @@ const accountStatusUpdateMessageType = ref(null);
 const accountStatusUpdateMessage = ref('');
 const updatedAccountId = ref(null);
 const fetchUser = async () => {
+
   try {
     const response = await axios.get(`users/${userId}`);
     user.value = response.data;
@@ -143,6 +142,7 @@ const fetchUser = async () => {
       }
     console.error(err);
   } finally {
+    console.log('Setting loading to false');
     loading.value = false;
   }
 };
@@ -153,7 +153,6 @@ const updateLimit = async (accountId, account) => {
   accountStatusUpdated.value = false;
   try {
     await axios.put(`accounts/${accountId}`, account);
-
     accountLimitUpdateMessageType.value = 'success';
     accountLimitUpdateMessage.value = 'Account limit updated successfully.';
 

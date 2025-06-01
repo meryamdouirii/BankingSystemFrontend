@@ -165,6 +165,7 @@ const handleDone = async () => {
 const filteredUsers = computed(() => {
   const term = searchTerm.value.toLowerCase();
   return users.value
+    .filter((user) => user.role?.includes("ROLE_CUSTOMER"))
     .slice()
     .sort((a, b) => {
       const lastNameCompare = a.lastName.localeCompare(b.lastName);
