@@ -31,7 +31,7 @@
               >
                 <div class="row g-3 align-items">
                   <!-- Account Section -->
-                  <div class="col-md-6 d-flex no-hover">
+                  <div class="col-md-6 d-flex">
                     <div class="card flex-fill">
                       <div class="card-body">
                         <AccountSection

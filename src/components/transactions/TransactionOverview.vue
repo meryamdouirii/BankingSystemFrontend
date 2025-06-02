@@ -1,24 +1,58 @@
 <template>
-  <div class="bg-light">
-    <div class="transaction-overview">
-      <h2>Transaction History</h2>
+  <div class="container">
+    <div v-if="isEmployeeOrAdmin">
+      <nav aria-label="breadcrumb" class="breadcrumb-container">
+        <ol class="breadcrumb-list">
+          <li class="breadcrumb-item">
+            <router-link to="/">Home</router-link>
+          </li>
+          <li class="breadcrumb-item">
+            <router-link to="/manage-users">Manage Users</router-link>
+          </li>
+          <li class="breadcrumb-item">
+            <router-link :to="`/manage-user/${this.account.ownerId}`">{{ this.account.ownerFirstName }} {{ this.account.ownerLastName }}</router-link>
+          </li>
+          <li class="breadcrumb-item">
+            <router-link :to="`/manage-user-accounts/${this.account.ownerId}`">Accounts</router-link>
+          </li>
+          <li class="breadcrumb-item">
+            <span>Transactions</span>
+          </li>
+        </ol>
+      </nav>
+    </div>
+    <div v-else>
+      <nav aria-label="breadcrumb" class="breadcrumb-container">
+        <ol class="breadcrumb-list">
+          <li class="breadcrumb-item">
+            <router-link to="/">Home</router-link>
+          </li>
+          <li class="breadcrumb-item">
+            <router-link to="/view-account">View Account</router-link>
+          </li>
+          <li class="breadcrumb-item">
+            <span>Transactions</span>
+          </li>
+        </ol>
+      </nav>
+    </div>
 
-      <TransactionFilters
-        @filter-changed="handleFilterChange"
-        @reset-filters="resetFilters"
-      />
 
-      <div v-if="loading" class="loading-message">Loading transactions...</div>
-      <div v-if="error" class="error-message">{{ error }}</div>
 
-      <TransactionTable
-        :current-account-id="Number($route.params.account_id)"
-        :transactions="transactions"
-        :total-items="totalTransactions"
-        :current-page="currentPage"
-        :items-per-page="itemsPerPage"
-        @page-changed="handlePageChange"
-      />
+
+    <div class="bg-light">
+      <div class="transaction-overview">
+        <h2>Transaction History</h2>
+
+        <TransactionFilters @filter-changed="handleFilterChange" @reset-filters="resetFilters" />
+
+        <div v-if="loading" class="loading-message">Loading transactions...</div>
+        <div v-if="error" class="error-message">{{ error }}</div>
+
+        <TransactionTable :current-account-id="Number($route.params.account_id)" :transactions="transactions"
+          :total-items="totalTransactions" :current-page="currentPage" :items-per-page="itemsPerPage"
+          @page-changed="handlePageChange" />
+      </div>
     </div>
   </div>
 </template>
@@ -37,6 +71,8 @@ export default {
   },
   data() {
     return {
+      loggedInUserRole: null,
+      account: null,
       currentAccountId: Number(this.$route.params.account_id) || null,
       transactions: [],
       loading: false,
@@ -52,6 +88,11 @@ export default {
         iban: null,
       },
     };
+  },
+  computed: {
+    isEmployeeOrAdmin() {
+      return this.loggedInUserRole === "ROLE_EMPLOYEE" || this.loggedInUserRole === "ROLE_ADMINISTRATOR";
+    }
   },
   methods: {
     async handleFilterChange(newFilters) {
@@ -76,7 +117,44 @@ export default {
       this.currentPage = page;
       this.fetchTransactions();
     },
+    async fetchAccount() {
+      this.loading = true;
+      this.error = null;
 
+      try {
+        const accountId = this.$route.params.account_id ? Number(this.$route.params.account_id) : null;
+
+        if (!accountId) {
+          this.error = "No account selected.";
+          this.loading = false;
+          return;
+        }
+
+        const response = await axios.get(`/accounts/${accountId}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+
+        this.account = {
+          id: response.data.id,
+          iban: response.data.iban,
+          balance: response.data.balance,
+          type: response.data.type,
+          status: response.data.status,
+          ownerId: response.data.ownerId,
+          ownerFirstName: response.data.ownerFirstName,
+          ownerLastName: response.data.ownerLastName,
+          ownerBsn: response.data.ownerBsn,
+          iban: response.data.iban,
+        };
+      } catch (err) {
+        console.error("Error fetching account:", err);
+        this.error = "Failed to load account. Please try again later.";
+      } finally {
+        this.loading = false;
+      }
+    },
     async fetchTransactions() {
       this.loading = true;
       this.error = null;
@@ -141,6 +219,11 @@ export default {
   },
   mounted() {
     this.fetchTransactions();
+    this.loggedInUserRole = localStorage.getItem("auth_userRole");
+    if(this.isEmployeeOrAdmin){
+          this.fetchAccount();
+    }
+
   },
 };
 </script>
@@ -156,6 +239,7 @@ h1 {
   color: #333;
   margin-bottom: 30px;
 }
+
 body {
   background-color: #333;
 }

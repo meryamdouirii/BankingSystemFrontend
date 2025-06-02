@@ -1,21 +1,23 @@
 <template>
   <div class="container-fluid account-bg pb-5">
     <div class="container py-4">
+      <nav aria-label="breadcrumb" class="breadcrumb-container">
+        <ol class="breadcrumb-list">
+          <li class="breadcrumb-item">
+            <router-link to="/">Home</router-link>
+          </li>
+          <li class="breadcrumb-item">
+            <span>View Account</span>
+          </li>
+        </ol>
+      </nav>
       <template v-if="hasAccounts">
         <ActionButtons />
         <TotalBalanceCard :balance="combinedBalance" />
-        <AccountSection
-          title="Payment"
-          :account="checkingAccount"
-          :customer="customer"
-          accountType="Centjesbank Checking Account"
-        />
-        <AccountSection
-          title="Savings"
-          :account="savingsAccount"
-          :customer="customer"
-          accountType="Centjesbank Savings"
-        />
+        <AccountSection title="Payment" :account="checkingAccount" :customer="customer"
+          accountType="Centjesbank Checking Account" />
+        <AccountSection title="Savings" :account="savingsAccount" :customer="customer"
+          accountType="Centjesbank Savings" />
       </template>
       <template v-else>
         <WelcomeMessage :customer="customer" />
@@ -27,7 +29,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import axios from '../../axios-auth';
-import { useAuthStore } from '../../stores/auth'; 
+import { useAuthStore } from '../../stores/auth';
 import { useRoute } from 'vue-router';
 
 
@@ -47,7 +49,7 @@ const error = ref(null);
 const fetchUserData = async () => {
   try {
     loading.value = true;
-    if(!auth.userId) {
+    if (!auth.userId) {
       error.value = "User not authenticated";
       return;
     }

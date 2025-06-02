@@ -84,12 +84,6 @@
                 </div>
               </div>
             </div>
-            <div class="mt-3 card flex-fill">
-              <div class="card-body">
-                <h5>User Transactions</h5>
-              </div>
-
-            </div>
           </div>
           <div v-else-if="error">{{ error }}</div>
         </div>

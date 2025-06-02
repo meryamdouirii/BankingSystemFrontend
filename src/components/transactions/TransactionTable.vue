@@ -22,8 +22,12 @@
         <tr v-for="(transaction, index) in transactions" :key="index">
           <td>{{ transaction.date }}</td>
           <td>{{ transaction.description }}</td>
-          <td>{{ transaction.senderIban }}</td>
-          <td>{{ transaction.receiverIban }}</td>
+          <td :class="{ 'bold-text': currentAccountId == transaction.senderId }">
+            {{ transaction.senderIban }}
+          </td>
+          <td :class="{ 'bold-text': currentAccountId != transaction.senderId }">
+            {{ transaction.receiverIban }}
+          </td>
           <td
             :class="[
               'amount',
@@ -122,6 +126,10 @@ export default {
 </script>
 
 <style scoped>
+.bold-text {
+  font-weight: bold;
+}
+
 .transaction-table {
   overflow-x: auto;
   background-color: white;
