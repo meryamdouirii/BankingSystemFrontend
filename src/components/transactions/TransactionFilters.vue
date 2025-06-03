@@ -82,7 +82,7 @@
               <input
                 type="text"
                 v-model="localFilters.iban"
-                placeholder="Enter partial IBAN"
+                placeholder="Enter IBAN"
               />
             </div>
           </div>
