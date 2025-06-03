@@ -141,19 +141,19 @@
   const handleTransfer = async () => {
     try {
       const transactionData = {
-        sender_account: selectedAccount.value,
-        amount: parseFloat(amount.value),
-        description: description.value,
-        initiator: authStore.userId
-      };
+      sender_account: { id: selectedAccount.value.id },
+      amount: parseFloat(amount.value),
+      description: description.value,
+      initiator: { id: authStore.userId } // <- stuur als object
+};
 
       // Automatically determine transaction type based on the toAccount value
       if (toAccount.value === 'external') {
-        transactionData.transaction_type = 'PAYMENT';
-        transactionData.reciever_account = recipientAccount.value;
+      transactionData.transaction_type = 'PAYMENT';
+      transactionData.reciever_account = recipientAccount.value;
       } else {
-        transactionData.transaction_type = 'INTERNAL_TRANSFER';
-        transactionData.reciever_account = toAccount.value;
+      transactionData.transaction_type = 'INTERNAL_TRANSFER';
+      transactionData.reciever_account = { id: toAccount.value.id };
       }
 
       const response = await axios.post('/transactions', transactionData);
