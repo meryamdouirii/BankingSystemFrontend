@@ -150,7 +150,7 @@
       // Automatically determine transaction type based on the toAccount value
       if (toAccount.value === 'external') {
       transactionData.transaction_type = 'PAYMENT';
-      transactionData.reciever_account = recipientAccount.value;
+      transactionData.reciever_account = { iban: recipientAccount.value };
       } else {
       transactionData.transaction_type = 'INTERNAL_TRANSFER';
       transactionData.reciever_account = { id: toAccount.value.id };
