@@ -4,6 +4,7 @@
 }
 
 /* === Buttons === */
+a,
 button {
   font-weight: bold;
 }
@@ -21,9 +22,11 @@ button {
   text-decoration: none;
   transition: background-color 0.2s ease;
 }
-
-.btn-small:hover {
-  opacity: 0.8;
+.btn-small:hover,
+a.btn-small:hover{
+  color:white;
+  opacity:0.8;
+  text-decoration: none;
 }
 
 .btn-small.deactivate {
@@ -269,6 +272,14 @@ button:disabled {
 
 .account-card:hover .text-muted {
   color: #495057 !important; /* Donkerdere tekst voor betere leesbaarheid */
+}
+.clickable-row {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.clickable-row:hover {
+  background-color: #f0f0f0;
 }
 /* Disable hover effect */
 .no-hover {

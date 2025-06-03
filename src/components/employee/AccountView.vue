@@ -9,6 +9,9 @@
           <router-link to="/manage-users">Manage Users</router-link>
         </li>
         <li class="breadcrumb-item">
+          <router-link :to="`/manage-user/${user?.id}`">{{ user?.firstName }} {{ user?.lastName }}</router-link>
+        </li>
+        <li class="breadcrumb-item">
           <span>Accounts</span>
         </li>
       </ol>
@@ -32,7 +35,7 @@
                     <div class="card flex-fill">
                       <div class="card-body">
                         <AccountSection
-                          :title="`Account ${index + 1}`"
+                          :title="account.type"
                           :account="account"
                           :customer="user"
                           :accountType="account.type"
@@ -44,23 +47,43 @@
                   <!-- Absolute Limit -->
                   <div class="col-md-3 d-flex">
                     <div class="card flex-fill">
+                      <Message
+                      v-if="accountLimitUpdated && account.id === updatedAccountId"
+                      :type="accountLimitUpdateMessageType"
+                      :message="accountLimitUpdateMessage"
+                      class="mt-3"
+                      ></Message>
                       <div class="card-body d-flex flex-column align-items-center justify-content-center">
+
                         <label>Absolute Limit</label>
-                        <input type="number" step="0.01" class="form-control form-control-sm" v-model="account.accountLimit" />
+                        <input type="number" step="0.01" class="form-control form-control-sm mt-3" v-model="account.accountLimit" />
                         <div class="d-flex justify-content-center mt-3">
-                          <button class="btn-small" @click="confirmAction">Update limit</button>
+                          <button class="btn-small" @click="updateLimit(account.id, account)">Update limit</button>
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  <!-- Deactivate Account -->
+                  <!-- (de)activate Account -->
                   <div class="col-md-3 d-flex">
                     <div class="card flex-fill">
+                       <!-- Message -->
+                          <Message
+                          v-if="accountStatusUpdated && account.id === updatedAccountId"
+                          :type="accountStatusUpdateMessageType"
+                          :message="accountStatusUpdateMessage"
+                          class="mt-3"
+                          ></Message>
                       <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                        <label>DEACTIVATE ACCOUNT</label>
-                        <div class="d-flex justify-content-center mt-3">
-                          <button class="btn-small btn-red" @click="confirmAction">DEACTIVATE</button>
+                        <label>{{account.status === "ACTIVE" ? "Close account" : "Open account" }}</label>
+                        <div class="d-flex justify-content-center mt-4">
+                          <button
+                            class="btn-small"
+                            :class="account.status === 'ACTIVE' ? 'btn-red' : 'btn-green'"
+                            @click="toggleAccountStatus(account)"
+                          >
+                            {{ account.status === 'ACTIVE' ? 'Close' : 'Open' }}
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -82,24 +105,31 @@
 
 <script setup>
 import AccountSection from '../customer/AccountSection.vue';
-import { ref, onMounted, defineProps } from 'vue';
+import { ref, onMounted} from 'vue';
 import { useRoute } from 'vue-router';
 import axios from '../../axios-auth';
+import Message from '../Message.vue';
 
 const loading = ref(true);
 const route = useRoute();
 const userId = route.params.id;
-const props = defineProps({
-  user: Object
-});
+
 
 const user = ref(null);
 const error = ref(null);
-
+const accountLimitUpdated = ref(false);
+const accountLimitUpdateMessageType = ref(null);
+const accountLimitUpdateMessage = ref('');
+const accountStatusUpdated = ref(false);
+const accountStatusUpdateMessageType = ref(null);
+const accountStatusUpdateMessage = ref('');
+const updatedAccountId = ref(null);
 const fetchUser = async () => {
+
   try {
     const response = await axios.get(`users/${userId}`);
     user.value = response.data;
+
   } catch (err) {
       if (err.response && err.response.status === 401) {
         error.value = "Unauthorized access. Please log in.";
@@ -112,8 +142,46 @@ const fetchUser = async () => {
       }
     console.error(err);
   } finally {
+    console.log('Setting loading to false');
     loading.value = false;
   }
+};
+
+const updateLimit = async (accountId, account) => {
+  updatedAccountId.value = accountId;
+  accountLimitUpdated.value = false;
+  accountStatusUpdated.value = false;
+  try {
+    await axios.put(`accounts/${accountId}`, account);
+    accountLimitUpdateMessageType.value = 'success';
+    accountLimitUpdateMessage.value = 'Account limit updated successfully.';
+
+  } catch (err) {
+    console.error("Failed to update account limit:", err);
+    accountLimitUpdateMessageType.value = 'error';
+    accountLimitUpdateMessage.value = 'Failed to update account limit.';
+  }
+  accountLimitUpdated.value = true;
+};
+
+const toggleAccountStatus = async (account) => {
+  updatedAccountId.value = account.id;
+  accountStatusUpdated.value = false;
+  accountLimitUpdated.value = false;
+  try {
+    const newStatus = account.status === 'ACTIVE' ? 'CLOSED' : 'ACTIVE';
+    await axios.put(`accounts/${account.id}`, { ...account, status: newStatus });
+    // Optionally, you can refetch the user data to reflect the changes
+    await fetchUser();
+    accountStatusUpdateMessageType.value = 'success';
+    accountStatusUpdateMessage.value = `Account ${newStatus === 'ACTIVE' ? 'opened' : 'closed'} successfully.`;
+
+  } catch (err) {
+    console.error("Failed to toggle account status:", err);
+    accountStatusUpdateMessageType.value = 'error';
+    accountStatusUpdateMessage.value = `Failed to ${account.status === 'ACTIVE' ? 'close' : 'open'} account.`;
+  }
+  accountStatusUpdated.value = true;
 };
 
 

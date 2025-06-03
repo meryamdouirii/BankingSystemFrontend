@@ -51,7 +51,7 @@
         </div>
       </div>
 
-      
+
       <p v-if="error" class="error">{{ error }}</p>
     </div>
 
@@ -107,6 +107,7 @@ const confirmAction = async () => {
     if (!accepted) {
       await axios.post(`/users/deny/${props.userId}`);
       console.log('Request denied');
+      emit('confirmed');
       return;
     }
     const payload = {
@@ -117,7 +118,7 @@ const confirmAction = async () => {
     };
 
     await axios.post(`/users/approve/${props.userId}`, payload);
- 
+
     console.log(`Request accepted`);
     emit('confirmed');
   } catch (err) {

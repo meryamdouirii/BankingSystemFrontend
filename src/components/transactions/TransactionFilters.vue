@@ -2,22 +2,22 @@
   <div class="transaction-filters">
     <h2>Filters</h2>
 
-    <!-- Always visible date range filter -->
+    <!-- Date range -->
     <div class="filter-section">
       <h3>Date Range</h3>
       <div class="date-range-filters">
         <div class="form-group">
           <label>Start date</label>
-          <input type="date" v-model="localFilters.dateRange.start" />
+          <input type="date" v-model="localFilters.startDate" />
         </div>
         <div class="form-group">
           <label>End date</label>
-          <input type="date" v-model="localFilters.dateRange.end" />
+          <input type="date" v-model="localFilters.endDate" />
         </div>
       </div>
     </div>
 
-    <!-- Toggle for additional filters as clickable text -->
+    <!-- Toggle -->
     <div
       class="toggle-filters-text"
       @click="showMoreFilters = !showMoreFilters"
@@ -41,7 +41,7 @@
       </svg>
     </div>
 
-    <!-- Additional filters (foldable) -->
+    <!-- Additional filters -->
     <transition name="slide">
       <div v-if="showMoreFilters" class="additional-filters">
         <div class="filter-section">
@@ -49,11 +49,7 @@
           <div class="amount-filters">
             <div class="form-group">
               <label>Condition</label>
-              <select
-                v-model="localFilters.amountCondition"
-                class="select-dark-text"
-                @change="clearAmountIfEmpty"
-              >
+              <select v-model="localFilters.amountFilterType">
                 <option value="">Select condition</option>
                 <option value="greater">Greater than</option>
                 <option value="less">Less than</option>
@@ -65,39 +61,28 @@
               <input
                 type="number"
                 step="0.01"
-                v-model="localFilters.amountValue"
-                :disabled="!localFilters.amountCondition"
-                class="input-dark-text"
-                :class="{ 'disabled-input': !localFilters.amountCondition }"
+                v-model="localFilters.amount"
+                :disabled="!localFilters.amountFilterType"
+                :class="{ 'disabled-input': !localFilters.amountFilterType }"
               />
             </div>
           </div>
         </div>
 
+        <!-- IBAN -->
         <div class="filter-section">
-          <h3>IBAN</h3>
+          <h3>IBAN Filter</h3>
           <div class="iban-filters">
             <div class="form-group">
-              <label>Direction</label>
-              <select
-                v-model="localFilters.ibanDirection"
-                class="select-dark-text"
-                @change="clearIbanIfEmpty"
-              >
-                <option value="">Select direction</option>
-                <option value="from">From</option>
-                <option value="to">To</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>IBAN number</label>
+              <label>IBAN</label>
+              <!-- Show modal -->
+              <button class="link-button" @click="modalVisible = true">
+                Find Customer IBAN
+              </button>
               <input
                 type="text"
-                v-model="localFilters.ibanNumber"
-                :disabled="!localFilters.ibanDirection"
+                v-model="localFilters.iban"
                 placeholder="Enter partial IBAN"
-                class="input-dark-text"
-                :class="{ 'disabled-input': !localFilters.ibanDirection }"
               />
             </div>
           </div>
@@ -105,44 +90,86 @@
       </div>
     </transition>
 
-    <!-- Apply filters button -->
-    <button class="apply-filters" @click="updateFilters">Apply filters</button>
+    <!-- Actions -->
+    <div class="filter-actions">
+      <button class="apply-filters" @click="applyFilters">Apply filters</button>
+    </div>
+
+    <!-- Modal component -->
+    <CustomerSearchModal
+      v-if="modalVisible"
+      @customer-selected="handleCustomerSelection"
+      @close="modalVisible = false"
+    />
   </div>
 </template>
 
 <script>
+import CustomerSearchModal from "./CustomerSearchModal.vue";
+
 export default {
+  components: { CustomerSearchModal },
   data() {
     return {
       showMoreFilters: false,
+      modalVisible: false,
       localFilters: {
-        dateRange: { start: null, end: null },
-        amountCondition: null,
-        amountValue: null,
-        ibanDirection: null,
-        ibanNumber: null,
+        startDate: null,
+        endDate: null,
+        amount: null,
+        amountFilterType: null,
+        iban: null,
       },
     };
   },
   methods: {
-    updateFilters() {
-      this.$emit("filter-changed", { ...this.localFilters });
+    handleCustomerSelection(customer) {
+      this.localFilters.iban = customer.iban;
+      this.modalVisible = false;
     },
-    clearAmountIfEmpty() {
-      if (!this.localFilters.amountCondition) {
-        this.localFilters.amountValue = null;
-      }
+    applyFilters() {
+      const toISO = (dateStr) =>
+        dateStr ? new Date(dateStr).toISOString() : null;
+
+      const apiFilters = {
+        startDate: toISO(this.localFilters.startDate),
+        endDate: toISO(this.localFilters.endDate),
+        amount: this.localFilters.amount
+          ? parseFloat(this.localFilters.amount)
+          : null,
+        amountFilterType: this.localFilters.amountFilterType || null,
+        iban: this.localFilters.iban || null,
+      };
+
+      this.$emit("filter-changed", apiFilters);
     },
-    clearIbanIfEmpty() {
-      if (!this.localFilters.ibanDirection) {
-        this.localFilters.ibanNumber = null;
-      }
+  },
+  watch: {
+    "localFilters.amountFilterType"(newVal) {
+      if (!newVal) this.localFilters.amount = null;
     },
   },
 };
 </script>
-
 <style scoped>
+.link-button {
+  background-color: white;
+  color: #6c63ff;
+  border: none;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-block;
+  margin-bottom: 5px;
+}
+
+.link-button:hover {
+  background-color: #f0f0f0;
+  transform: translateY(-1px);
+}
 .transaction-filters {
   background-color: #6c63ff;
   padding: 20px;

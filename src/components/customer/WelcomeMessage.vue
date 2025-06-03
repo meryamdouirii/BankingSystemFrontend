@@ -1,5 +1,5 @@
 <template>
-  <div class="text-center text-white">
+  <div class="text-center text-white background">
     <h1 class="mb-4">Hello, {{ customer.firstName }}!</h1>
     <div class="card shadow-sm rounded-4 p-4 bg-white bg-opacity-10">
       <div class="fs-4 mb-3">Welcome to Centjesbank</div>
@@ -22,3 +22,11 @@ defineProps({
   }
 });
 </script>
+
+<style scoped>
+
+.background {
+  background: #6610f2;
+}
+
+</style>
