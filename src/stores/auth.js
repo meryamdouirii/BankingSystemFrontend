@@ -1,5 +1,6 @@
 // stores/auth.js
 import { defineStore } from "pinia";
+import axios from "../axios-auth";
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
@@ -50,6 +51,7 @@ export const useAuthStore = defineStore("auth", {
       localStorage.removeItem("auth_token");
       localStorage.removeItem("auth_expiresAt");
       localStorage.removeItem("auth_loginType");
+      axios.defaults.headers.common["Authorization"];
     },
     isAuthenticated() {
       return this.token && Date.now() < this.expiresAt;

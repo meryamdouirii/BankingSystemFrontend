@@ -22,7 +22,7 @@ function isTokenExpired(token) {
 // Async interceptor using async/await
 instance.interceptors.request.use(
   async (config) => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("auth_token");
 
     if (token) {
       const expired = isTokenExpired(token);

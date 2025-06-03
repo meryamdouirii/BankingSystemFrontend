@@ -19,8 +19,6 @@
           <span :class="{ 'text-purple': isAtm }" class="switch-label">Atm</span>
 
         </div>
-        <p>{{ isAtm.valueOf }}</p>
-
         <!-- Success message -->
         <div v-if="showSuccessMessage" class="success-message m-4">
           Registration successful! Please log in with your credentials.
@@ -94,11 +92,11 @@ const handleLogin = async () => {
     authStore.setToken(token, isAtm.value ? "atm" : "account");
     localStorage.setItem("token", token);
 
-    if (isAtm.value) {
+    if (isAtm.value && localStorage.getItem("auth_userRole") === "ROLE_CUSTOMER"){
       router.push("/atm/home");
-    }
-
+    }else{
       router.push("/");
+    }
   } catch (err) {
     // Always show generic error message on any failure
     error.value = "User not found or invalid credentials";
