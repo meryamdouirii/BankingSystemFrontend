@@ -8,7 +8,7 @@
         <li class="breadcrumb-item">
           <router-link to="/manage-users">Manage Users</router-link>
         </li>
-        <li class="breadcrumb-item">
+        <li class="breadcrumb-item active">
           <span>{{ user?.firstName }} {{ user?.lastName }}</span>
         </li>
       </ol>

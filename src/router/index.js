@@ -11,6 +11,8 @@ import TransactionHistory from "@/components/transactions/TransactionOverview.vu
 import ManageUserAccounts from "../components/employee/AccountView.vue";
 import ManageUser from "../components/employee/UserView.vue";
 import Forbidden from "../components/Forbidden.vue";
+import TransferForm from "@/components/transfer-money/Transfer-Form.vue";
+import Atm from "@/components/atm/home.vue";
 const routes = [
   { path: "/", component: Home, meta: {authRequired:false} },
   {path: "/403-forbidden", component: Forbidden , meta: {authRequired:false}},
@@ -24,6 +26,8 @@ const routes = [
   { path: "/transactionhistory", component: TransactionHistory, meta: {authRequired:true}},
   { path: "/manage-user-accounts/:id", component: ManageUserAccounts, meta: {authRequired:true, roles:["ROLE_ADMINISTRATOR","ROLE_EMPLOYEE"]} },
   { path: "/manage-user/:id", component: ManageUser, meta: {authRequired:true, roles:["ROLE_ADMINISTRATOR","ROLE_EMPLOYEE"]} },
+  {path: "/transfer-money", component: TransferForm },
+  {path: "/atm/home", component: Atm}
 
 ];
 

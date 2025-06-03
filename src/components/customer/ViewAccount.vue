@@ -6,7 +6,7 @@
           <li class="breadcrumb-item">
             <router-link to="/">Home</router-link>
           </li>
-          <li class="breadcrumb-item">
+          <li  class="breadcrumb-item active">
             <span>View Account</span>
           </li>
         </ol>

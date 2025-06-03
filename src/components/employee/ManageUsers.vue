@@ -3,16 +3,14 @@
   <div class="container">
     <nav aria-label="breadcrumb" class="breadcrumb-container">
       <ol class="breadcrumb-list">
-        <li v-for="(crumb, index) in breadcrumbs" :key="index" class="breadcrumb-item">
-          <template v-if="crumb.link">
-            <router-link :to="crumb.link">{{ crumb.name }}</router-link>
-          </template>
-          <template v-else>
-            <span>{{ crumb.name }}</span>
-          </template>
+        <li class="breadcrumb-item">
+          <router-link to="/">Home</router-link>
+        </li>
+        <li class="breadcrumb-item active">
+          <span>Manage Users</span>
         </li>
       </ol>
-      </nav>
+    </nav>
     <main class="main-content">
       <div class="card">
         <div class="card-body">
@@ -114,10 +112,6 @@ import axios from "../../axios-auth";
 import AccountView from "./AccountView.vue";
 import HandleRequest from "./request/HandleRequest.vue";
 
-const breadcrumbs = ref([
-  { name: 'Home', link: '/' },
-  { name: 'Manage Users', link: null }
-])
 
 const users = ref([]);
 const error = ref(null);
