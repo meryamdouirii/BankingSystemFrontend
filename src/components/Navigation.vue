@@ -55,6 +55,22 @@ function logout() {
           >
             Manage Users
           </router-link>
+          
+        </li>
+             <li
+          v-if="
+            userRole === 'ROLE_ADMINISTRATOR' || userRole === 'ROLE_EMPLOYEE'
+          "
+          class="nav-item"
+        >
+          <router-link
+            to="/all-transactions"
+            class="nav-link"
+            active-class="active"
+          >
+            All transactions
+          </router-link>
+          
         </li>
         <li v-if="userRole === 'ROLE_CUSTOMER'" class="nav-item">
           <router-link to="/view-account" class="nav-link" active-class="active"

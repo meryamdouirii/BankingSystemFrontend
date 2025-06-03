@@ -12,6 +12,7 @@ import ManageUserAccounts from "../components/employee/AccountView.vue";
 import ManageUser from "../components/employee/UserView.vue";
 import Forbidden from "../components/Forbidden.vue";
 import TransferForm from "@/components/transfer-money/Transfer-Form.vue";
+import AllTransactions from "../components/employee/Transactions.vue";
 const routes = [
   { path: "/", component: Home, meta: {authRequired:false} },
   {path: "/403-forbidden", component: Forbidden , meta: {authRequired:false}},
@@ -26,6 +27,8 @@ const routes = [
   { path: "/manage-user-accounts/:id", component: ManageUserAccounts, meta: {authRequired:true, roles:["ROLE_ADMINISTRATOR","ROLE_EMPLOYEE"]} },
   { path: "/manage-user/:id", component: ManageUser, meta: {authRequired:true, roles:["ROLE_ADMINISTRATOR","ROLE_EMPLOYEE"]} },
   {path: "/transfer-money", component: TransferForm },
+  {
+  path: '/all-transactions', component: AllTransactions, meta: {authRequired:true, roles:["ROLE_ADMINISTRATOR","ROLE_EMPLOYEE"]} },
 
 ];
 

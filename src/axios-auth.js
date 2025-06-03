@@ -2,10 +2,10 @@ import axios from "axios";
 import router from "./router";
 
 // Create Axios instance
-const instance = axios.create({
-  //baseURL: "https://centjesbank.onrender.com/api/", // adjust if needed
-  baseURL: "http://localhost:8080/api",
-});
+  const instance = axios.create({
+    //baseURL: "https://centjesbank.onrender.com/api/", // adjust if needed
+    baseURL: "http://localhost:8080/api",
+  });
 
 // Helper: Check if JWT is expired
 function isTokenExpired(token) {
