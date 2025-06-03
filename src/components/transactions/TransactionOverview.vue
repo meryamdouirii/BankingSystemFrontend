@@ -15,7 +15,7 @@
           <li class="breadcrumb-item">
             <router-link :to="`/manage-user-accounts/${this.account.ownerId}`">Accounts</router-link>
           </li>
-          <li class="breadcrumb-item">
+          <li class="breadcrumb-item active">
             <span>Transactions</span>
           </li>
         </ol>
@@ -30,7 +30,7 @@
           <li class="breadcrumb-item">
             <router-link to="/view-account">View Account</router-link>
           </li>
-          <li class="breadcrumb-item">
+          <li class="breadcrumb-item active">
             <span>Transactions</span>
           </li>
         </ol>
@@ -42,7 +42,7 @@
 
     <div class="bg-light">
       <div class="transaction-overview">
-        <h2>Transaction History</h2>
+        <h2 class="header-title">Transaction History</h2>
 
         <TransactionFilters @filter-changed="handleFilterChange" @reset-filters="resetFilters" />
 

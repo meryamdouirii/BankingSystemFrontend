@@ -11,7 +11,7 @@
         <li class="breadcrumb-item">
           <router-link :to="`/manage-user/${user?.id}`">{{ user?.firstName }} {{ user?.lastName }}</router-link>
         </li>
-        <li class="breadcrumb-item">
+        <li  class="breadcrumb-item active">
           <span>Accounts</span>
         </li>
       </ol>
