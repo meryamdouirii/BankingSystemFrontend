@@ -150,6 +150,10 @@
         ></textarea>
       </div>
 
+      <div v-if="error" class="alert alert-danger text-danger mb-3">
+        {{ error }}
+      </div>
+
       <button
         type="button"
         class="btn w-100 text-white"
@@ -248,10 +252,14 @@ const handleTransfer = async () => {
     console.log("Transfer successful:", response.data);
     // You can add redirection or success message here
   } catch (err) {
-    error.value =
-      "Transfer failed: " + (err.response?.data?.message || err.message);
-    console.error("Transfer error:", err);
-  }
+  const backendMessage =
+    err.response?.data?.message ||
+    err.response?.data ||
+    "An unexpected error occurred";
+
+  error.value = "Transfer failed: " + backendMessage;
+  console.error("Transfer error:", err);
+}
 };
 
 const fetchUserData = async () => {
