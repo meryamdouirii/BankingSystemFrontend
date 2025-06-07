@@ -13,6 +13,8 @@ export const useAuthStore = defineStore("auth", {
   actions: {
     setToken(token, loginType) {
       this.token = token;
+      this.loginType = loginType;
+
       const payload = JSON.parse(atob(token.split(".")[1])); // Decode JWT payload
       this.userId = payload.id  // <-- UserID opslaan
       this.expiresAt = payload.exp * 1000; // Convert to ms
@@ -51,7 +53,7 @@ export const useAuthStore = defineStore("auth", {
       localStorage.removeItem("auth_token");
       localStorage.removeItem("auth_expiresAt");
       localStorage.removeItem("auth_loginType");
-      axios.defaults.headers.common["Authorization"];
+      delete axios.defaults.headers.common["Authorization"];
     },
     isAuthenticated() {
       return this.token && Date.now() < this.expiresAt;
