@@ -18,7 +18,7 @@ import { useRouter } from "vue-router";
 const router = useRouter();
 
 const goToDeposit = () => {
- // router.push("");
+  router.push("/atm/deposit");
 };
 
 const goToWithdraw = () => {

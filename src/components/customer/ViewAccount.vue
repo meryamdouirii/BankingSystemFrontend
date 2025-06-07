@@ -14,7 +14,7 @@
       <template v-if="hasAccounts">
         <ActionButtons />
         <TotalBalanceCard :balance="combinedBalance" />
-        <AccountSection title="Payment" :account="checkingAccount" :customer="customer"
+        <AccountSection title="Checking" :account="checkingAccount" :customer="customer"
           accountType="Centjesbank Checking Account" />
         <AccountSection title="Savings" :account="savingsAccount" :customer="customer"
           accountType="Centjesbank Savings" />

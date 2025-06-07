@@ -206,6 +206,7 @@ export default {
           receiverIban: transaction.receiver_iban,
           amount: transaction.amount,
           initiatorName: transaction.initiatorName,
+          type: transaction.transactionType,
         }));
 
         this.totalTransactions = response.data.totalElements;
