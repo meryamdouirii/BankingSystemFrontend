@@ -5,6 +5,9 @@
                 <div v-if="error" class="alert alert-danger m-4">
                     {{ error }}
                 </div>
+                <div v-if="success" class="alert alert-success m-4">
+                    {{ success }}
+                </div>
                 <h2 class="header-title mb-4">Deposit from your account</h2>
                 <AccountSection class="no-hover" title="" :account="checkingAccount" :customer="customer"
                     accountType="Centjesbank Checking Account" />
@@ -32,6 +35,7 @@ const authStore = useAuthStore();
 const checkingAccount = ref(null);
 const loading = ref(true);
 const error = ref(null);
+const success = ref(null);
 const customer = ref(null);
 const amount = ref(0);
 
@@ -39,6 +43,7 @@ const fetchUserData = async () => {
     try {
         loading.value = true;
         if (!authStore.userId) {
+            success.value = null;
             error.value = "User not authenticated";
             return;
         }
@@ -54,6 +59,7 @@ const fetchUserData = async () => {
 
 
     } catch (err) {
+        success.value = null;
         error.value = "Could not load account information";
         console.error(err);
     } finally {
@@ -62,6 +68,7 @@ const fetchUserData = async () => {
 };
 const deposit = async () => {
   if (amount.value <= 0) {
+    success.value = null;
     error.value = "Please enter an amount greater than zero.";
     return;
   }
@@ -79,6 +86,8 @@ const deposit = async () => {
   try {
     const response = await axios.post('/transactions', transactionData);
     console.log('Deposit successful:', response.data);
+    error.value = null;
+    success.value = "Deposit successful!";
 
     // Update het lokale account balance als dat nodig is
     checkingAccount.value.balance += amount.value;
@@ -86,6 +95,7 @@ const deposit = async () => {
     // Reset het bedrag na succesvolle storting
     amount.value = 0;
   } catch (err) {
+    success.value = null;
     error.value = "Deposit failed: " + (err.response?.data?.message || err.message);
     console.error('Deposit error:', err);
   }
