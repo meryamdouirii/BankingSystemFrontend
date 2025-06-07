@@ -12,7 +12,7 @@ import ManageUserAccounts from "../components/employee/AccountView.vue";
 import ManageUser from "../components/employee/UserView.vue";
 import Forbidden from "../components/Forbidden.vue";
 import TransferForm from "@/components/transfer-money/Transfer-Form.vue";
-import AllTransactions from "../components/employee/Transactions.vue";
+import AllTransactions from "../components/employee/AllTransactions.vue";
 import Atm from "@/components/atm/home.vue";
 import Deposit from "@/components/atm/deposit.vue";
 const routes = [

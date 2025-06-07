@@ -105,7 +105,7 @@
 </template>
 
 <script>
-import CustomerSearchModal from "./CustomerSearchModal.vue";
+import CustomerSearchModal from "../customer/CustomerSearchModal.vue";
 
 export default {
   components: { CustomerSearchModal },
