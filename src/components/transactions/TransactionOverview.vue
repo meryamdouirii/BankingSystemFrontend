@@ -10,10 +10,14 @@
             <router-link to="/manage-users">Manage Users</router-link>
           </li>
           <li class="breadcrumb-item">
-            <router-link :to="`/manage-user/${this.account.ownerId}`">{{ this.account.ownerFirstName }} {{ this.account.ownerLastName }}</router-link>
+            <router-link :to="`/manage-user/${account?.ownerId}`">
+              {{ account?.ownerFirstName }} {{ account?.ownerLastName }}
+            </router-link>
           </li>
           <li class="breadcrumb-item">
-            <router-link :to="`/manage-user-accounts/${this.account.ownerId}`">Accounts</router-link>
+            <router-link :to="`/manage-user-accounts/${account?.ownerId}`"
+              >Accounts</router-link
+            >
           </li>
           <li class="breadcrumb-item active">
             <span>Transactions</span>
@@ -37,21 +41,30 @@
       </nav>
     </div>
 
-
-
-
     <div class="bg-light">
       <div class="transaction-overview">
         <h2 class="header-title">Transaction History</h2>
 
-        <TransactionFilters @filter-changed="handleFilterChange" @reset-filters="resetFilters" />
+        <TransactionFilters
+          @filter-changed="handleFilterChange"
+          @reset-filters="resetFilters"
+        />
 
-        <div v-if="loading" class="loading-message">Loading transactions...</div>
-        <div v-if="error" class="error-message">{{ error }}</div>
+        <div v-if="loading || accountLoading" class="loading-message">
+          Loading transactions...
+        </div>
+        <div v-if="error || accountError" class="error-message">
+          {{ error || accountError }}
+        </div>
 
-        <TransactionTable :current-account-id="Number($route.params.account_id)" :transactions="transactions"
-          :total-items="totalTransactions" :current-page="currentPage" :items-per-page="itemsPerPage"
-          @page-changed="handlePageChange" />
+        <TransactionTable
+          :current-account-id="currentAccountId"
+          :transactions="transactions"
+          :total-items="totalTransactions"
+          :current-page="pagination.currentPage"
+          :items-per-page="pagination.itemsPerPage"
+          @page-changed="handlePageChange"
+        />
       </div>
     </div>
   </div>
@@ -60,83 +73,71 @@
 <script>
 import TransactionFilters from "./TransactionFilters.vue";
 import TransactionTable from "./TransactionTable.vue";
+import { useTransactions } from "../../composables/useTransactions";
+import { useRoute } from "vue-router";
+import { ref, computed, onMounted } from "vue";
 import axios from "../../axios-auth";
-
-
 
 export default {
   components: {
     TransactionFilters,
     TransactionTable,
   },
-  data() {
-    return {
-      loggedInUserRole: null,
-      account: null,
-      currentAccountId: Number(this.$route.params.account_id) || null,
-      transactions: [],
-      loading: false,
-      error: null,
-      currentPage: 1,
-      itemsPerPage: 10,
-      totalTransactions: 0,
-      filters: {
-        startDate: null,
-        endDate: null,
-        amount: null,
-        amountFilterType: null,
-        iban: null,
-      },
-    };
-  },
-  computed: {
-    isEmployeeOrAdmin() {
-      return this.loggedInUserRole === "ROLE_EMPLOYEE" || this.loggedInUserRole === "ROLE_ADMINISTRATOR";
-    }
-  },
-  methods: {
-    async handleFilterChange(newFilters) {
-      this.filters = { ...this.filters, ...newFilters };
-      this.currentPage = 1; // Reset to first page when filters change
-      await this.fetchTransactions();
-    },
+  setup() {
+    const route = useRoute();
+    const loggedInUserRole = ref(null);
+    const account = ref(null);
+    const accountLoading = ref(false);
+    const accountError = ref(null);
 
-    resetFilters() {
-      this.filters = {
-        startDate: null,
-        endDate: null,
-        amount: null,
-        amountFilterType: null,
-        iban: null,
-      };
-      this.currentPage = 1;
-      this.fetchTransactions();
-    },
+    const currentAccountId = computed(() =>
+      route.params.account_id ? Number(route.params.account_id) : null
+    );
 
-    handlePageChange(page) {
-      this.currentPage = page;
-      this.fetchTransactions();
-    },
-    async fetchAccount() {
-      this.loading = true;
-      this.error = null;
+    const isEmployeeOrAdmin = computed(
+      () =>
+        loggedInUserRole.value === "ROLE_EMPLOYEE" ||
+        loggedInUserRole.value === "ROLE_ADMINISTRATOR"
+    );
+
+    // Initialize the composable with the account-specific endpoint
+    const apiEndpoint = computed(
+      () => `/transactions/account/${currentAccountId.value}`
+    );
+
+    const {
+      transactions,
+      filters,
+      pagination,
+      loading,
+      error,
+      totalTransactions,
+      resetFilters,
+      handlePageChange,
+      handleFilterChange,
+      fetchTransactions,
+    } = useTransactions(apiEndpoint.value);
+
+    const fetchAccount = async () => {
+      if (!currentAccountId.value) {
+        accountError.value = "No account selected.";
+        return;
+      }
+
+      accountLoading.value = true;
+      accountError.value = null;
 
       try {
-        const accountId = this.$route.params.account_id ? Number(this.$route.params.account_id) : null;
+        const response = await axios.get(
+          `/accounts/${currentAccountId.value}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
 
-        if (!accountId) {
-          this.error = "No account selected.";
-          this.loading = false;
-          return;
-        }
-
-        const response = await axios.get(`/accounts/${accountId}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
-
-        this.account = {
+        account.value = {
           id: response.data.id,
           iban: response.data.iban,
           balance: response.data.balance,
@@ -146,85 +147,46 @@ export default {
           ownerFirstName: response.data.ownerFirstName,
           ownerLastName: response.data.ownerLastName,
           ownerBsn: response.data.ownerBsn,
-          iban: response.data.iban,
         };
       } catch (err) {
         console.error("Error fetching account:", err);
-        this.error = "Failed to load account. Please try again later.";
+        accountError.value = "Failed to load account. Please try again later.";
       } finally {
-        this.loading = false;
+        accountLoading.value = false;
       }
-    },
-    async fetchTransactions() {
-      this.loading = true;
-      this.error = null;
+    };
 
-      try {
-        // Convert amount to number if it exists
-        const amount = this.filters.amount ? Number(this.filters.amount) : null;
+    onMounted(async () => {
+      loggedInUserRole.value = localStorage.getItem("auth_userRole");
 
-        // Build query parameters
-        const params = {
-          page: this.currentPage - 1, // Spring pages are 0-indexed
-          size: this.itemsPerPage,
-          ...(this.filters.startDate && { startDate: this.filters.startDate }),
-          ...(this.filters.endDate && { endDate: this.filters.endDate }),
-          ...(amount && { amount: amount }),
-          ...(this.filters.amountFilterType && {
-            amountFilterType: this.filters.amountFilterType.toUpperCase(),
-          }),
-          ...(this.filters.iban && {
-            iban: this.filters.iban,
-          }),
-        };
-
-        const accountId = this.$route.params.account_id ? Number(this.$route.params.account_id) : null;
-
-        if (!accountId) {
-          this.error = "No account selected.";
-          this.loading = false;
-          return;
-        }
-
-        const endpoint = `/transactions/account/${accountId}`;
-
-        const response = await axios.get(endpoint, {
-          params,
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
-
-        // Transform API data
-        this.transactions = response.data.content.map((transaction) => ({
-          id: transaction.id,
-          senderId: transaction.sender_id,
-          date: new Date(transaction.dateTime).toLocaleDateString("en-GB"),
-          dateTime: transaction.dateTime,
-          description: transaction.description,
-          senderIban: transaction.sender_iban,
-          receiverIban: transaction.receiver_iban,
-          amount: transaction.amount,
-          initiatorName: transaction.initiatorName,
-          type: transaction.transactionType,
-        }));
-
-        this.totalTransactions = response.data.totalElements;
-      } catch (err) {
-        console.error("Error fetching transactions:", err);
-        this.error = "Failed to load transactions. Please try again later.";
-      } finally {
-        this.loading = false;
+      if (isEmployeeOrAdmin.value) {
+        await fetchAccount();
       }
-    },
-  },
-  mounted() {
-    this.fetchTransactions();
-    this.loggedInUserRole = localStorage.getItem("auth_userRole");
-    if(this.isEmployeeOrAdmin){
-          this.fetchAccount();
-    }
 
+      if (currentAccountId.value) {
+        fetchTransactions();
+      } else {
+        error.value = "No account selected.";
+      }
+    });
+
+    return {
+      transactions,
+      filters,
+      pagination,
+      loading,
+      error,
+      totalTransactions,
+      resetFilters,
+      handlePageChange,
+      handleFilterChange,
+      loggedInUserRole,
+      account,
+      accountLoading,
+      accountError,
+      currentAccountId,
+      isEmployeeOrAdmin,
+    };
   },
 };
 </script>

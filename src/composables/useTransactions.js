@@ -1,45 +1,61 @@
-import { ref, reactive, watch } from 'vue';
-import axios from "../axios-auth"
+import { ref, reactive, watch } from "vue";
+import axios from "../axios-auth";
 
 export function useTransactions(apiEndpoint, additionalParams = {}) {
   const loading = ref(false);
   const error = ref(null);
   const transactions = ref([]);
+  const totalTransactions = ref(0);
+
   const pagination = reactive({
-    page: 0,
-    size: 10,
+    currentPage: 1,
+    itemsPerPage: 10,
     totalPages: 0,
   });
 
   const filters = reactive({
-    sender_iban: '',
-    receiver_iban: '',
-    amount: '',
-    type: '',
-    date_from: '',
-    date_to: '',
+    startDate: null,
+    endDate: null,
+    amount: null,
+    amountFilterType: null,
+    iban: null,
   });
 
   const resetFilters = () => {
     Object.assign(filters, {
-      sender_iban: '',
-      receiver_iban: '',
-      amount: '',
-      type: '',
-      date_from: '',
-      date_to: '',
+      startDate: null,
+      endDate: null,
+      amount: null,
+      amountFilterType: null,
+      iban: null,
     });
-  };
-
-  const handlePageChange = (page) => {
-    pagination.page = page;
+    pagination.currentPage = 1;
     fetchTransactions();
   };
 
-  const mapTransactionData = (transactions) => {
-    return transactions.map(tx => ({
-      ...tx,
-      date: new Date(tx.date).toLocaleString(),
+  const handlePageChange = (page) => {
+    pagination.currentPage = page;
+    fetchTransactions();
+  };
+
+  const handleFilterChange = (newFilters) => {
+    Object.assign(filters, newFilters);
+    pagination.currentPage = 1;
+    fetchTransactions();
+  };
+
+  const mapTransactionData = (transactionData) => {
+    return transactionData.map((transaction) => ({
+      id: transaction.id,
+      senderId: transaction.sender_id,
+      date: new Date(transaction.dateTime).toLocaleDateString("en-GB"),
+      dateTime: transaction.dateTime,
+      description: transaction.description,
+      senderIban: transaction.sender_iban,
+      receiverIban: transaction.receiver_iban,
+      amount: transaction.amount,
+      initiatorName: transaction.initiatorName,
+      type: transaction.transactionType,
     }));
   };
 
@@ -48,29 +64,38 @@ export function useTransactions(apiEndpoint, additionalParams = {}) {
     error.value = null;
 
     try {
+      const amount = filters.amount ? Number(filters.amount) : null;
+
       const params = {
-        page: pagination.page,
-        size: pagination.size,
-        ...filters,
+        page: pagination.currentPage - 1, // Spring pages are 0-indexed
+        size: pagination.itemsPerPage,
+        ...(filters.startDate && { startDate: filters.startDate }),
+        ...(filters.endDate && { endDate: filters.endDate }),
+        ...(amount && { amount }),
+        ...(filters.amountFilterType && {
+          amountFilterType: filters.amountFilterType.toUpperCase(),
+        }),
+        ...(filters.iban && { iban: filters.iban }),
         ...additionalParams,
       };
 
-      if (filters.amount && isNaN(Number(filters.amount))) {
-        throw new Error("Amount must be a valid number.");
-      }
+      const response = await axios.get(apiEndpoint, {
+        params,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
 
-      const { data } = await axios.get(apiEndpoint, { params });
-      transactions.value = mapTransactionData(data.content);
-      pagination.totalPages = data.totalPages;
+      transactions.value = mapTransactionData(response.data.content);
+      totalTransactions.value = response.data.totalElements;
+      pagination.totalPages = response.data.totalPages;
     } catch (err) {
-      error.value = err.message || 'Failed to fetch transactions.';
+      console.error("Error fetching transactions:", err);
+      error.value = "Failed to load transactions. Please try again later.";
     } finally {
       loading.value = false;
     }
   };
-
-  // Auto-fetch on page change
-  watch(() => pagination.page, fetchTransactions);
 
   return {
     transactions,
@@ -78,8 +103,10 @@ export function useTransactions(apiEndpoint, additionalParams = {}) {
     pagination,
     loading,
     error,
+    totalTransactions,
     resetFilters,
     handlePageChange,
+    handleFilterChange,
     fetchTransactions,
   };
 }

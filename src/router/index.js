@@ -16,23 +16,71 @@ import AllTransactions from "../components/employee/Transactions.vue";
 import Atm from "@/components/atm/home.vue";
 import Deposit from "@/components/atm/deposit.vue";
 const routes = [
-  { path: "/", component: Home, meta: {authRequired:false} },
-  {path: "/403-forbidden", component: Forbidden , meta: {authRequired:false}},
-  { path: "/manage-users", component: ManageUsers, meta: {authRequired:true, roles:["ROLE_ADMINISTRATOR","ROLE_EMPLOYEE"]} },
-  { path: "/login", component: Login , meta: {authRequired:false}},
-  { path: "/register", component: Register , meta: {authRequired:false}},
-  { path: "/view-account", component: ViewAccount ,meta:{
-    authRequired: true, roles: ["ROLE_CUSTOMER"]
-  }},
-  { path: "/transactionhistory/:account_id", component: TransactionHistory, meta: {authRequired:true}},
-  { path: "/transactionhistory", component: TransactionHistory, meta: {authRequired:true}},
-  { path: "/manage-user-accounts/:id", component: ManageUserAccounts, meta: {authRequired:true, roles:["ROLE_ADMINISTRATOR","ROLE_EMPLOYEE"]} },
-  { path: "/manage-user/:id", component: ManageUser, meta: {authRequired:true, roles:["ROLE_ADMINISTRATOR","ROLE_EMPLOYEE"]} },
-  {path: "/transfer-money", component: TransferForm },
+  { path: "/", component: Home, meta: { authRequired: false } },
   {
-  path: '/all-transactions', component: AllTransactions, meta: {authRequired:true, roles:["ROLE_ADMINISTRATOR","ROLE_EMPLOYEE"]} },
-  {path: "/atm/home", component: Atm}
-  {path: "/atm/deposit", component: Deposit, meta: {authRequired:true, roles:["ROLE_CUSTOMER"]} },
+    path: "/403-forbidden",
+    component: Forbidden,
+    meta: { authRequired: false },
+  },
+  {
+    path: "/manage-users",
+    component: ManageUsers,
+    meta: {
+      authRequired: true,
+      roles: ["ROLE_ADMINISTRATOR", "ROLE_EMPLOYEE"],
+    },
+  },
+  { path: "/login", component: Login, meta: { authRequired: false } },
+  { path: "/register", component: Register, meta: { authRequired: false } },
+  {
+    path: "/view-account",
+    component: ViewAccount,
+    meta: {
+      authRequired: true,
+      roles: ["ROLE_CUSTOMER"],
+    },
+  },
+  {
+    path: "/transactionhistory/:account_id",
+    component: TransactionHistory,
+    meta: { authRequired: true },
+  },
+  {
+    path: "/transactionhistory",
+    component: TransactionHistory,
+    meta: { authRequired: true },
+  },
+  {
+    path: "/manage-user-accounts/:id",
+    component: ManageUserAccounts,
+    meta: {
+      authRequired: true,
+      roles: ["ROLE_ADMINISTRATOR", "ROLE_EMPLOYEE"],
+    },
+  },
+  {
+    path: "/manage-user/:id",
+    component: ManageUser,
+    meta: {
+      authRequired: true,
+      roles: ["ROLE_ADMINISTRATOR", "ROLE_EMPLOYEE"],
+    },
+  },
+  { path: "/transfer-money", component: TransferForm },
+  {
+    path: "/all-transactions",
+    component: AllTransactions,
+    meta: {
+      authRequired: true,
+      roles: ["ROLE_ADMINISTRATOR", "ROLE_EMPLOYEE"],
+    },
+  },
+  { path: "/atm/home", component: Atm },
+  {
+    path: "/atm/deposit",
+    component: Deposit,
+    meta: { authRequired: true, roles: ["ROLE_CUSTOMER"] },
+  },
 ];
 
 const router = createRouter({
@@ -58,6 +106,5 @@ router.beforeEach((to, from, next) => {
 
   return next();
 });
-
 
 export default router;
