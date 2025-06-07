@@ -3,9 +3,6 @@
     <nav aria-label="breadcrumb" class="breadcrumb-container">
       <ol class="breadcrumb-list">
         <li class="breadcrumb-item">
-          <router-link to="/">Home</router-link>
-        </li>
-        <li class="breadcrumb-item">
           <router-link to="/manage-users">Manage Users</router-link>
         </li>
         <li class="breadcrumb-item">

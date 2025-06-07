@@ -94,7 +94,14 @@ const handleLogin = async () => {
     if (isAtm.value && localStorage.getItem("auth_userRole") === "ROLE_CUSTOMER"){
       router.push("/atm/home");
     }else{
-      router.push("/");
+
+      if (localStorage.getItem("auth_userRole") === "ROLE_CUSTOMER") {
+        router.push("/view-account");
+      } else if (localStorage.getItem("auth_userRole") === "ROLE_EMPLOYEE" || localStorage.getItem("auth_userRole") === "ROLE_ADMINISTRATOR") {
+        router.push("/manage-users");
+      }else{
+        router.push("/login");
+      }
     }
   } catch (err) {
     // Always show generic error message on any failure

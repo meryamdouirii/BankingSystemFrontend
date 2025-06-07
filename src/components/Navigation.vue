@@ -16,9 +16,44 @@ function logout() {
   <nav class="navbar navbar-expand-md navbar-dark nav">
     <div class="container-fluid">
       <ul class="navbar-nav me-auto mb-2 mb-md-0">
-        <li class="nav-item">
-          <router-link to="/" class="nav-link" active-class="active"
-            >Home</router-link
+        <li
+          v-if="
+            userRole === 'ROLE_ADMINISTRATOR' || userRole === 'ROLE_EMPLOYEE'
+          "
+          class="nav-item"
+        >
+          <router-link
+            to="/manage-users"
+            class="nav-link"
+            active-class="active"
+          >
+            Manage Users
+          </router-link>
+
+        </li>
+             <li
+          v-if="
+            userRole === 'ROLE_ADMINISTRATOR' || userRole === 'ROLE_EMPLOYEE'
+          "
+          class="nav-item"
+        >
+          <router-link
+            to="/all-transactions"
+            class="nav-link"
+            active-class="active"
+          >
+            All transactions
+          </router-link>
+
+        </li>
+        <li v-if="userRole === 'ROLE_CUSTOMER' && loginType === 'account'" class="nav-item">
+          <router-link to="/view-account" class="nav-link" active-class="active"
+            >View Account</router-link
+          >
+        </li>
+        <li v-if="userRole === 'ROLE_CUSTOMER' && loginType === 'atm'" class="nav-item">
+          <router-link to="/atm/home" class="nav-link" active-class="active"
+            >Start</router-link
           >
         </li>
         <li v-if="!isLoggedIn" class="nav-item">
@@ -40,47 +75,6 @@ function logout() {
           >
             Log Out
           </router-link>
-        </li>
-
-        <li
-          v-if="
-            userRole === 'ROLE_ADMINISTRATOR' || userRole === 'ROLE_EMPLOYEE'
-          "
-          class="nav-item"
-        >
-          <router-link
-            to="/manage-users"
-            class="nav-link"
-            active-class="active"
-          >
-            Manage Users
-          </router-link>
-          
-        </li>
-             <li
-          v-if="
-            userRole === 'ROLE_ADMINISTRATOR' || userRole === 'ROLE_EMPLOYEE'
-          "
-          class="nav-item"
-        >
-          <router-link
-            to="/all-transactions"
-            class="nav-link"
-            active-class="active"
-          >
-            All transactions
-          </router-link>
-          
-        </li>
-        <li v-if="userRole === 'ROLE_CUSTOMER' && loginType === 'account'" class="nav-item">
-          <router-link to="/view-account" class="nav-link" active-class="active"
-            >View Account</router-link
-          >
-        </li>
-        <li v-if="userRole === 'ROLE_CUSTOMER' && loginType === 'atm'" class="nav-item">
-          <router-link to="/atm/home" class="nav-link" active-class="active"
-            >Start</router-link
-          >
         </li>
       </ul>
     </div>

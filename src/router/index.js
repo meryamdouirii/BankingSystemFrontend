@@ -2,7 +2,6 @@ import { createRouter, createWebHistory } from "vue-router";
 import { useAuthStore } from "../stores/auth";
 import { computed } from "vue";
 
-import Home from "../components/Home.vue";
 import Login from "../components/Login.vue";
 import Register from "../components/Register.vue";
 import ManageUsers from "../components/employee/ManageUsers.vue";
@@ -16,7 +15,6 @@ import AllTransactions from "../components/employee/AllTransactions.vue";
 import Atm from "@/components/atm/home.vue";
 import Deposit from "@/components/atm/deposit.vue";
 const routes = [
-  { path: "/", component: Home, meta: { authRequired: false } },
   {
     path: "/403-forbidden",
     component: Forbidden,
@@ -75,7 +73,7 @@ const routes = [
       roles: ["ROLE_ADMINISTRATOR", "ROLE_EMPLOYEE"],
     },
   },
-  { path: "/atm/home", component: Atm },
+  { path: "/atm/home", component: Atm, meta: { authRequired: true, roles: ["ROLE_CUSTOMER"] } },
   {
     path: "/atm/deposit",
     component: Deposit,

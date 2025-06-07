@@ -2,6 +2,9 @@
     <div class="atm-home-container">
         <main class="main-content text-center">
             <div class="atm-card">
+                <p class="breadcrumb-item">
+                    <RouterLink to="/atm/home"><- Go Back</RouterLink>
+                </p>
                 <div v-if="error" class="alert alert-danger m-4">
                     {{ error }}
                 </div>
@@ -67,38 +70,38 @@ const fetchUserData = async () => {
     }
 };
 const deposit = async () => {
-  if (amount.value <= 0) {
-    success.value = null;
-    error.value = "Please enter an amount greater than zero.";
-    return;
-  }
+    if (amount.value <= 0) {
+        success.value = null;
+        error.value = "Please enter an amount greater than zero.";
+        return;
+    }
 
-  error.value = null;
+    error.value = null;
 
     const transactionData = {
-    reciever_account: { id: checkingAccount.value.id },
-    amount: amount.value,
-    description: 'Deposit via ATM',
-    transaction_type: 'DEPOSIT',
-    initiator: { id: customer.value.id }
-  };
+        reciever_account: { id: checkingAccount.value.id },
+        amount: amount.value,
+        description: 'Deposit via ATM',
+        transaction_type: 'DEPOSIT',
+        initiator: { id: customer.value.id }
+    };
 
-  try {
-    const response = await axios.post('/transactions', transactionData);
-    console.log('Deposit successful:', response.data);
-    error.value = null;
-    success.value = "Deposit successful!";
+    try {
+        const response = await axios.post('/transactions', transactionData);
+        console.log('Deposit successful:', response.data);
+        error.value = null;
+        success.value = "Deposit successful!";
 
-    // Update het lokale account balance als dat nodig is
-    checkingAccount.value.balance += amount.value;
+        // Update het lokale account balance als dat nodig is
+        checkingAccount.value.balance += amount.value;
 
-    // Reset het bedrag na succesvolle storting
-    amount.value = 0;
-  } catch (err) {
-    success.value = null;
-    error.value = "Deposit failed: " + (err.response?.data?.message || err.message);
-    console.error('Deposit error:', err);
-  }
+        // Reset het bedrag na succesvolle storting
+        amount.value = 0;
+    } catch (err) {
+        success.value = null;
+        error.value = "Deposit failed: " + (err.response?.data?.message || err.message);
+        console.error('Deposit error:', err);
+    }
 };
 onMounted(() => {
     fetchUserData();
