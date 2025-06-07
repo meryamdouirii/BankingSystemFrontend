@@ -112,6 +112,7 @@ import { ref, onMounted, computed } from 'vue';
 import { useAuthStore } from '../../stores/auth';
 import axios from '../../axios-auth';
 import CustomerSearchModal from '../transactions/CustomerSearchModal.vue';
+import router from '@/router';
 
 const authStore = useAuthStore();
 const customer = ref({});
@@ -166,27 +167,26 @@ const handleTransfer = async () => {
       sender_account: { id: selectedAccount.value.id },
       amount: parseFloat(amount.value),
       description: description.value,
-      initiator: { id: authStore.userId } // <- stuur als object
+      initiator: { id: authStore.userId } // sending as object
     };
 
     transactionData.transaction_type = toAccount.value === 'external' ? 'PAYMENT' : 'INTERNAL_TRANSFER';
 
-    transactionData.reciever_account = {
-      iban: toAccount.value === 'external'
-        ? recipientAccount.value
-        : toAccount.value.iban
-    };
-
+    transactionData.reciever_account = toAccount.value === 'external'
+      ? { iban: recipientAccount.value }
+      : { id: toAccount.value.id };
 
     const response = await axios.post('/transactions', transactionData);
+    router.push('/view-account'); 
     // Handle successful transfer
     console.log('Transfer successful:', response.data);
-    // Redirect or show success message
+    // You can add redirection or success message here
   } catch (err) {
     error.value = "Transfer failed: " + (err.response?.data?.message || err.message);
     console.error('Transfer error:', err);
   }
 };
+
 
 const fetchUserData = async () => {
   try {
