@@ -20,27 +20,47 @@
         </tr>
         <!-- Display actual transactions -->
         <tr v-for="(transaction, index) in transactions" :key="index">
-          <td>{{ transaction.date }}</td>
+          <td>{{ formatDateTime(transaction.dateTime) }}</td>
           <td>{{ transaction.description }}</td>
-          <td :class="{ 'bold-text': currentAccountId == transaction.senderId }">
-            {{ transaction.type === 'DEPOSIT' ? 'ATM' : transaction.senderIban }}
+          <td
+            :class="{ 'bold-text': currentAccountId == transaction.senderId }"
+          >
+            {{
+              transaction.type === "DEPOSIT" ? "ATM" : transaction.senderIban
+            }}
           </td>
-          <td :class="{ 'bold-text': currentAccountId != transaction.senderId }">
-            {{ transaction.type === 'WITHDRAWAL' ? 'ATM' : transaction.receiverIban }}
+          <td
+            :class="{ 'bold-text': currentAccountId != transaction.senderId }"
+          >
+            {{
+              transaction.type === "WITHDRAWAL"
+                ? "ATM"
+                : transaction.receiverIban
+            }}
           </td>
-          <td :class="[
-            'amount',
-            currentAccountId == transaction.senderId ? 'negative' : 'positive',
-          ]">
+          <td
+            :class="[
+              'amount',
+              currentAccountId == transaction.senderId
+                ? 'negative'
+                : 'positive',
+            ]"
+          >
             <span>
-              {{ currentAccountId == transaction.senderId ? '-' : '+' }}€{{ Math.abs(transaction.amount).toFixed(2) }}
+              {{ currentAccountId == transaction.senderId ? "-" : "+" }}€{{
+                Math.abs(transaction.amount).toFixed(2)
+              }}
             </span>
           </td>
           <td>{{ transaction.initiatorName }}</td>
         </tr>
 
         <!-- Display empty rows if needed -->
-        <tr v-for="index in emptyRowCount" :key="'empty-' + index" class="empty-row">
+        <tr
+          v-for="index in emptyRowCount"
+          :key="'empty-' + index"
+          class="empty-row"
+        >
           <td>&nbsp;</td>
           <td>&nbsp;</td>
           <td>&nbsp;</td>
@@ -53,13 +73,19 @@
 
     <!-- Pagination controls -->
     <div v-if="totalItems > 0" class="pagination-controls">
-      <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1">
+      <button
+        @click="changePage(currentPage - 1)"
+        :disabled="currentPage === 1"
+      >
         Previous
       </button>
       <span class="page-info">
         Page {{ currentPage }} of {{ totalPages }}
       </span>
-      <button @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages">
+      <button
+        @click="changePage(currentPage + 1)"
+        :disabled="currentPage === totalPages"
+      >
         Next
       </button>
     </div>
@@ -104,6 +130,19 @@ export default {
       if (newPage >= 1 && newPage <= this.totalPages) {
         this.$emit("page-changed", newPage);
       }
+    },
+    formatDateTime(dateStr) {
+      // Handle the ISO string directly
+      const date = new Date(dateStr);
+      return date.toLocaleString("en-GB", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false,
+      });
     },
   },
 };
@@ -213,7 +252,6 @@ td {
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-
   th,
   td {
     padding: 10px 12px;
