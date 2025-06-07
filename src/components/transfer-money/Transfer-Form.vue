@@ -81,7 +81,7 @@
               placeholder="€ 0,00"
             >
             <div v-if="isAmountTooHigh" class="text-danger mt-1">
-              <small>⚠️ Insufficient funds. Your current balance is €{{ selectedAccount?.balance.toFixed(2) }}</small>
+              <small>⚠️ Insufficient funds. Your current balance is €{{ selectedAccount?.balance.toFixed(2) }} and your limit is {{ selectedAccount.accountLimit }}</small>
             </div>
           </div>
           <div class="col">
@@ -140,7 +140,8 @@
 
   const isAmountTooHigh = computed(() => {
     if (!amount.value || !selectedAccount.value) return false;
-    return parseFloat(amount.value) > selectedAccount.value.balance;
+    const resultingBalance = selectedAccount.value.balance - parseFloat(amount.value);
+    return resultingBalance < selectedAccount.value.accountLimit;
   });
 
   const isFormValid = computed(() => {
