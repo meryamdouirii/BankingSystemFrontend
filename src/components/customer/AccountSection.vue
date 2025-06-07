@@ -13,7 +13,7 @@
         <!-- Overlay inside account-card -->
         <div v-if="account.status === 'CLOSED'" class="overlay"></div>
 
-        <div class="d-flex justify-content-between align-items-center position-relative">
+        <div>
           <h6 class="text-primary mb-0">{{ accountType }}</h6>
           <span
             v-if="account.status === 'CLOSED'"
@@ -22,8 +22,8 @@
             Account is closed
           </span>
         </div>
-        <div class="text-muted small">Name: {{ customer.firstName }} {{ customer.lastName }}</div>
-        <div class="text-muted small">IBAN: <span class="text-monospace">{{ account.iban }}</span></div>
+        <div class="text-muted">Name: {{ customer.firstName }} {{ customer.lastName }}</div>
+        <div class="text-muted">IBAN: <span class="text-monospace">{{ account.iban }}</span></div>
         <div class="fs-4 fw-bold mt-2">€ {{ account.balance.toFixed(2) }}</div>
       </div>
     </div>
@@ -94,10 +94,4 @@ const goToTransactionHistory = (account) => {
 };
 </script>
 
-<style scoped>
-.header-title {
-  color: #6c63ff;
-  font-weight: 600;
-}
-</style>
 

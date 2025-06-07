@@ -23,17 +23,15 @@
           <td>{{ transaction.date }}</td>
           <td>{{ transaction.description }}</td>
           <td :class="{ 'bold-text': currentAccountId == transaction.senderId }">
-            {{ transaction.senderIban }}
+            {{ transaction.type === 'DEPOSIT' ? 'ATM' : transaction.senderIban }}
           </td>
           <td :class="{ 'bold-text': currentAccountId != transaction.senderId }">
-            {{ transaction.receiverIban }}
+            {{ transaction.type === 'WITHDRAWAL' ? 'ATM' : transaction.receiverIban }}
           </td>
-          <td
-            :class="[
-              'amount',
-              currentAccountId == transaction.senderId ? 'negative' : 'positive',
-            ]"
-          >
+          <td :class="[
+            'amount',
+            currentAccountId == transaction.senderId ? 'negative' : 'positive',
+          ]">
             <span>
               {{ currentAccountId == transaction.senderId ? '-' : '+' }}€{{ Math.abs(transaction.amount).toFixed(2) }}
             </span>
@@ -42,11 +40,7 @@
         </tr>
 
         <!-- Display empty rows if needed -->
-        <tr
-          v-for="index in emptyRowCount"
-          :key="'empty-' + index"
-          class="empty-row"
-        >
+        <tr v-for="index in emptyRowCount" :key="'empty-' + index" class="empty-row">
           <td>&nbsp;</td>
           <td>&nbsp;</td>
           <td>&nbsp;</td>
@@ -59,19 +53,13 @@
 
     <!-- Pagination controls -->
     <div v-if="totalItems > 0" class="pagination-controls">
-      <button
-        @click="changePage(currentPage - 1)"
-        :disabled="currentPage === 1"
-      >
+      <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1">
         Previous
       </button>
       <span class="page-info">
         Page {{ currentPage }} of {{ totalPages }}
       </span>
-      <button
-        @click="changePage(currentPage + 1)"
-        :disabled="currentPage === totalPages"
-      >
+      <button @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages">
         Next
       </button>
     </div>
@@ -81,7 +69,7 @@
 <script>
 export default {
   props: {
-    currentAccountId:{
+    currentAccountId: {
       type: Number,
       required: true,
     },
@@ -112,10 +100,6 @@ export default {
     },
   },
   methods: {
-    getType(transaction) {
-      if (transaction.amount >= 0) return "Deposit";
-      return "Withdrawal";
-    },
     changePage(newPage) {
       if (newPage >= 1 && newPage <= this.totalPages) {
         this.$emit("page-changed", newPage);
@@ -167,7 +151,8 @@ export default {
 table {
   width: 100%;
   border-collapse: collapse;
-  min-height: 500px; /* Adjust this value based on your row height */
+  min-height: 500px;
+  /* Adjust this value based on your row height */
 }
 
 th,
@@ -175,7 +160,8 @@ td {
   padding: 14px 16px;
   text-align: left;
   border-bottom: 1px solid #f0f0f0;
-  height: 48px; /* Fixed height for each row */
+  height: 48px;
+  /* Fixed height for each row */
 }
 
 th {
@@ -227,6 +213,7 @@ td {
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
+
   th,
   td {
     padding: 10px 12px;

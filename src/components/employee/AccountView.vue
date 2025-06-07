@@ -17,7 +17,7 @@
       </ol>
     </nav>
 
-    <main class="main-content">
+    <main>
       <div class="card">
         <div class="card-body">
           <div v-if="loading">Loading...</div>
@@ -29,9 +29,9 @@
                 :key="account.id"
                 class="account-row mb-4"
               >
-                <div class="row g-3 align-items">
+                <div class="row align-items-stretch g-4">
                   <!-- Account Section -->
-                  <div class="col-md-6 d-flex">
+                  <div class="col-lg-6 col-md-12 mb-3 d-flex">
                     <div class="card flex-fill">
                       <div class="card-body">
                         <AccountSection
@@ -45,7 +45,7 @@
                   </div>
 
                   <!-- Absolute Limit -->
-                  <div class="col-md-3 d-flex">
+                  <div class="col-lg-3 col-md-6 mb-3 d-flex">
                     <div class="card flex-fill">
                       <Message
                       v-if="accountLimitUpdated && account.id === updatedAccountId"
@@ -65,7 +65,7 @@
                   </div>
 
                   <!-- (de)activate Account -->
-                  <div class="col-md-3 d-flex">
+                  <div class="col-lg-3 col-md-6 mb-3 d-flex">
                     <div class="card flex-fill">
                        <!-- Message -->
                           <Message

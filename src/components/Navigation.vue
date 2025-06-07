@@ -2,8 +2,8 @@
 import { ref } from "vue";
 import { computed } from "vue";
 import { useAuthStore } from "../stores/auth";
-
 const authStore = useAuthStore();
+const loginType = computed(() => authStore.loginType);
 const userRole = computed(() => authStore.userRole);
 
 const isLoggedIn = computed(() => !!authStore.token);
@@ -72,9 +72,14 @@ function logout() {
           </router-link>
           
         </li>
-        <li v-if="userRole === 'ROLE_CUSTOMER'" class="nav-item">
+        <li v-if="userRole === 'ROLE_CUSTOMER' && loginType === 'account'" class="nav-item">
           <router-link to="/view-account" class="nav-link" active-class="active"
             >View Account</router-link
+          >
+        </li>
+        <li v-if="userRole === 'ROLE_CUSTOMER' && loginType === 'atm'" class="nav-item">
+          <router-link to="/atm/home" class="nav-link" active-class="active"
+            >Start</router-link
           >
         </li>
       </ul>

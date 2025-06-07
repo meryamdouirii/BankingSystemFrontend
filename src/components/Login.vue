@@ -90,7 +90,6 @@ const handleLogin = async () => {
     ).data;
 
     authStore.setToken(token, isAtm.value ? "atm" : "account");
-    localStorage.setItem("token", token);
 
     if (isAtm.value && localStorage.getItem("auth_userRole") === "ROLE_CUSTOMER"){
       router.push("/atm/home");

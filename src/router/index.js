@@ -14,6 +14,7 @@ import Forbidden from "../components/Forbidden.vue";
 import TransferForm from "@/components/transfer-money/Transfer-Form.vue";
 import AllTransactions from "../components/employee/Transactions.vue";
 import Atm from "@/components/atm/home.vue";
+import Deposit from "@/components/atm/deposit.vue";
 const routes = [
   { path: "/", component: Home, meta: {authRequired:false} },
   {path: "/403-forbidden", component: Forbidden , meta: {authRequired:false}},
@@ -31,7 +32,7 @@ const routes = [
   {
   path: '/all-transactions', component: AllTransactions, meta: {authRequired:true, roles:["ROLE_ADMINISTRATOR","ROLE_EMPLOYEE"]} },
   {path: "/atm/home", component: Atm}
-
+  {path: "/atm/deposit", component: Deposit, meta: {authRequired:true, roles:["ROLE_CUSTOMER"]} },
 ];
 
 const router = createRouter({
