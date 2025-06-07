@@ -163,14 +163,14 @@
       initiator: { id: authStore.userId } // <- stuur als object
 };
 
-      // Automatically determine transaction type based on the toAccount value
-      if (toAccount.value === 'external') {
-      transactionData.transaction_type = 'PAYMENT';
-      transactionData.reciever_account = { iban: recipientAccount.value };
-      } else {
-      transactionData.transaction_type = 'INTERNAL_TRANSFER';
-      transactionData.reciever_account = { id: toAccount.value.id };
-      }
+  transactionData.transaction_type = toAccount.value === 'external' ? 'PAYMENT' : 'INTERNAL_TRANSFER';
+
+  transactionData.reciever_account = {
+  iban: toAccount.value === 'external'
+    ? recipientAccount.value
+    : toAccount.value.iban
+  };
+
 
       const response = await axios.post('/transactions', transactionData);
       // Handle successful transfer
