@@ -40,14 +40,6 @@
               v-model="limits.dailyLimit"
             />
           </div>
-          <div class="limit-group">
-            <label>Set Transfer Limit</label>
-            <input
-              type="number"
-              step="0.01"
-              v-model="limits.transferLimit"
-            />
-          </div>
         </div>
       </div>
 
@@ -76,7 +68,6 @@ const props = defineProps({
 const emit = defineEmits(['confirmed', 'cancel']);
 
 const limits = reactive({
-  transferLimit: 500.00,
   absoluteLimitSavings: 0.00,
   dailyLimit: 1000.00,
   absoluteLimitCheckings: 0.00
@@ -114,7 +105,6 @@ const confirmAction = async () => {
       absoluteLimitCheckings: limits.absoluteLimitCheckings,
       absoluteLimitSavings: limits.absoluteLimitSavings,
       dailyLimit: limits.dailyLimit,
-      transferLimit: limits.transferLimit
     };
 
     await axios.post(`/users/approve/${props.userId}`, payload);

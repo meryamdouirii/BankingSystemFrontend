@@ -14,7 +14,7 @@
       </ol>
     </nav>
 
-    <main class="main-content">
+    <main>
       <div class="card">
         <div class="card-body">
           <!-- Error Message -->
@@ -40,7 +40,6 @@
                         </span>
                       </p>
                       <p><strong>Daily Limit:</strong> {{ user.daily_limit }}</p>
-                      <p><strong>Transfer Limit:</strong> {{ user.transfer_limit }}</p>
                       <p>
                         <strong>Approval Status: </strong>
                         <span :class="{
@@ -66,11 +65,6 @@
                   <h5>Limit Settings</h5>
                   <div class="mt-3 mb-3 user-info">
                     <div class="mt-0 row">
-                      <div class="col-md-6">
-                        <p><strong>Transfer Limit:</strong></p>
-                        <input type="number" step="0.01" class="form-control form-control-sm mt-3"
-                          v-model="editedLimits.transfer_limit" />
-                      </div>
                       <div class="col-md-6">
                         <p><strong>Daily Limit:</strong></p>
                         <input type="number" step="0.01" class="form-control form-control-sm mt-3"
@@ -103,8 +97,7 @@ const route = useRoute();
 const router = useRouter();
 const userId = route.params.id;
 const editedLimits = reactive({
-  daily_limit: 0,
-  transfer_limit: 0
+  daily_limit: 0
 });
 
 
@@ -116,7 +109,6 @@ const fetchUser = async () => {
     const response = await axios.get(`users/${userId}`);
     user.value = response.data;
     editedLimits.daily_limit = user.value.daily_limit;
-    editedLimits.transfer_limit = user.value.transfer_limit;
 
     if (user.value.role !== 'ROLE_CUSTOMER') {
       router.push('/manage-users');
@@ -146,7 +138,6 @@ const updateLimits = async () => {
   try {
     await axios.put(`/users/${userId}`, {
       ...user.value,
-      transfer_limit: editedLimits.transfer_limit,
       daily_limit: editedLimits.daily_limit
     });
 
