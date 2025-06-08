@@ -5,19 +5,22 @@
       <div class="login-card">
         <!-- Login form -->
         <h2 class="header-title text-center mt-3">
-          {{ isAtm ? 'Log in to the Atm' : 'Log in to CentjesBank' }}
+          {{ isAtm ? "Log in to the Atm" : "Log in to CentjesBank" }}
         </h2>
 
         <div class="switch-container">
-          <span :class="{ 'text-purple': !isAtm }" class="switch-label">Account</span>
+          <span :class="{ 'text-purple': !isAtm }" class="switch-label"
+            >Account</span
+          >
 
           <label class="switch">
             <input type="checkbox" id="toggleSwitch" v-model="isAtm" />
             <span class="slider round"></span>
           </label>
 
-          <span :class="{ 'text-purple': isAtm }" class="switch-label">Atm</span>
-
+          <span :class="{ 'text-purple': isAtm }" class="switch-label"
+            >Atm</span
+          >
         </div>
         <!-- Success message -->
         <div v-if="showSuccessMessage" class="success-message m-4">
@@ -28,20 +31,34 @@
           {{ error }}
         </div>
         <div class="d-flex justify-content-center align-items-center">
-          <div class="w-100" style="max-width: 400px;">
+          <div class="w-100" style="max-width: 400px">
             <form @submit.prevent="handleLogin">
               <div class="mb-3">
                 <label for="email" class="form-label">Email</label>
-                <input type="text" id="email" v-model="email" class="form-control" required />
+                <input
+                  type="text"
+                  id="email"
+                  v-model="email"
+                  class="form-control"
+                  required
+                />
               </div>
 
               <div class="mb-3">
                 <label for="password" class="form-label">Password</label>
-                <input type="password" id="password" v-model="password" class="form-control" required />
+                <input
+                  type="password"
+                  id="password"
+                  v-model="password"
+                  class="form-control"
+                  required
+                />
               </div>
 
               <div class="mb-3">
-                <a href="/BankingSystemFrontend/register" class="link">Don't have an account yet? Register now!</a>
+                <a href="/BankingSystemFrontend/register" class="link"
+                  >Don't have an account yet? Register now!</a
+                >
               </div>
 
               <div class="d-grid">
@@ -50,7 +67,6 @@
             </form>
           </div>
         </div>
-
       </div>
     </main>
   </div>
@@ -91,22 +107,43 @@ const handleLogin = async () => {
 
     authStore.setToken(token, isAtm.value ? "atm" : "account");
 
-    if (isAtm.value && localStorage.getItem("auth_userRole") === "ROLE_CUSTOMER"){
+    if (
+      isAtm.value &&
+      localStorage.getItem("auth_userRole") === "ROLE_CUSTOMER"
+    ) {
       router.push("/atm/home");
-    }else{
-
+    } else {
       if (localStorage.getItem("auth_userRole") === "ROLE_CUSTOMER") {
         router.push("/view-account");
-      } else if (localStorage.getItem("auth_userRole") === "ROLE_EMPLOYEE" || localStorage.getItem("auth_userRole") === "ROLE_ADMINISTRATOR") {
+      } else if (
+        localStorage.getItem("auth_userRole") === "ROLE_EMPLOYEE" ||
+        localStorage.getItem("auth_userRole") === "ROLE_ADMINISTRATOR"
+      ) {
         router.push("/manage-users");
-      }else{
+      } else {
         router.push("/login");
       }
     }
   } catch (err) {
-    // Always show generic error message on any failure
-    error.value = "User not found or invalid credentials";
+    if (err.response?.data) {
+      if (typeof err.response.data === "string") {
+        // Strip known error prefix
+        error.value = err.response.data.replace(
+          /^Internal Server Error:\s*/i,
+          ""
+        );
+      } else if (err.response.data.message) {
+        error.value = err.response.data.message;
+      } else {
+        error.value = JSON.stringify(err.response.data);
+      }
+    } else {
+      error.value = err.message || "Login failed";
+    }
+
     console.error("Login error:", err);
+  } finally {
+    loading.value = false;
   }
 };
 </script>

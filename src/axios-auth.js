@@ -22,12 +22,9 @@ function isTokenExpired(token) {
 function showSessionExpiredMessage() {
   const message =
     "Your session has expired for security reasons. Please log in again to continue.";
-
-  //Simple alert
   alert(message);
 }
 
-// Track if we've already shown the expiry message to avoid spam
 let hasShownExpiryMessage = false;
 
 // Request interceptor

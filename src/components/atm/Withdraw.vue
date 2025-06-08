@@ -37,8 +37,6 @@
             placeholder="Enter amount"
           />
         </div>
-
-        <!-- Withdraw button -->
         <div class="button-row">
           <button class="btn-small" @click="withdraw">Withdraw</button>
         </div>
