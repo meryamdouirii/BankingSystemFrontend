@@ -313,12 +313,19 @@ const handleTransfer = async () => {
     }
     // You can add a success message or clear the form here as well
   } catch (err) {
+
     const backendMessage =
       err.response?.data?.message ||
       err.response?.data ||
       "An unexpected error occurred";
 
     error.value = "Transfer failed: " + backendMessage;
+        if (typeof err.response.data === "string") {
+        // Strip known error prefix
+        error.value = err.response.data.replace(
+          /^Internal Server Error:\s*/i,
+          ""
+        );}
     console.error("Transfer error:", err);
   }
 };
