@@ -22,7 +22,6 @@ const goToDeposit = () => {
 };
 
 const goToWithdraw = () => {
- // router.push("");
+  router.push("/atm/withdraw");
 };
 </script>
-

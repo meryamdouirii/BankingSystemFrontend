@@ -14,6 +14,7 @@ import TransferForm from "@/components/transfer-money/Transfer-Form.vue";
 import AllTransactions from "../components/employee/AllTransactions.vue";
 import Atm from "@/components/atm/home.vue";
 import Deposit from "@/components/atm/deposit.vue";
+import Withdraw from "@/components/atm/Withdraw.vue";
 const routes = [
   {
     path: "/403-forbidden",
@@ -73,10 +74,19 @@ const routes = [
       roles: ["ROLE_ADMINISTRATOR", "ROLE_EMPLOYEE"],
     },
   },
-  { path: "/atm/home", component: Atm, meta: { authRequired: true, roles: ["ROLE_CUSTOMER"] } },
+  {
+    path: "/atm/home",
+    component: Atm,
+    meta: { authRequired: true, roles: ["ROLE_CUSTOMER"] },
+  },
   {
     path: "/atm/deposit",
     component: Deposit,
+    meta: { authRequired: true, roles: ["ROLE_CUSTOMER"] },
+  },
+  {
+    path: "/atm/withdraw",
+    component: Withdraw,
     meta: { authRequired: true, roles: ["ROLE_CUSTOMER"] },
   },
 ];

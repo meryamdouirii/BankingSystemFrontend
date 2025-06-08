@@ -46,11 +46,7 @@
                 : 'positive',
             ]"
           >
-            <span>
-              {{ currentAccountId == transaction.senderId ? "-" : "+" }}€{{
-                Math.abs(transaction.amount).toFixed(2)
-              }}
-            </span>
+            <span> €{{ Math.abs(transaction.amount).toFixed(2) }} </span>
           </td>
           <td>{{ transaction.initiatorName }}</td>
         </tr>
@@ -140,7 +136,6 @@ export default {
         year: "numeric",
         hour: "2-digit",
         minute: "2-digit",
-        second: "2-digit",
         hour12: false,
       });
     },

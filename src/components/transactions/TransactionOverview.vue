@@ -34,32 +34,29 @@
         </ol>
       </nav>
     </div>
+    <div class="transaction-overview">
+      <h2 class="header-title">Transaction History</h2>
 
-    <div class="bg-light">
-      <div class="transaction-overview">
-        <h2 class="header-title">Transaction History</h2>
+      <TransactionFilters
+        @filter-changed="handleFilterChange"
+        @reset-filters="resetFilters"
+      />
 
-        <TransactionFilters
-          @filter-changed="handleFilterChange"
-          @reset-filters="resetFilters"
-        />
-
-        <div v-if="loading || accountLoading" class="loading-message">
-          Loading transactions...
-        </div>
-        <div v-if="error || accountError" class="error-message">
-          {{ error || accountError }}
-        </div>
-
-        <TransactionTable
-          :current-account-id="currentAccountId"
-          :transactions="transactions"
-          :total-items="totalTransactions"
-          :current-page="pagination.currentPage"
-          :items-per-page="pagination.itemsPerPage"
-          @page-changed="handlePageChange"
-        />
+      <div v-if="loading || accountLoading" class="loading-message">
+        Loading transactions...
       </div>
+      <div v-if="error || accountError" class="error-message">
+        {{ error || accountError }}
+      </div>
+
+      <TransactionTable
+        :current-account-id="currentAccountId"
+        :transactions="transactions"
+        :total-items="totalTransactions"
+        :current-page="pagination.currentPage"
+        :items-per-page="pagination.itemsPerPage"
+        @page-changed="handlePageChange"
+      />
     </div>
   </div>
 </template>
