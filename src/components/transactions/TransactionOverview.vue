@@ -119,14 +119,7 @@ export default {
       accountError.value = null;
 
       try {
-        const response = await axios.get(
-          `/accounts/${currentAccountId.value}`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
+        const response = await axios.get(`/accounts/${currentAccountId.value}`);
 
         account.value = {
           id: response.data.id,
