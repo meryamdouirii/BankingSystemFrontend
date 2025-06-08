@@ -1,92 +1,102 @@
-import { createRouter, createWebHistory } from 'vue-router';
-import { useAuthStore } from '../stores/auth';
-import { computed } from 'vue';
+import { createRouter, createWebHistory } from "vue-router";
+import { useAuthStore } from "../stores/auth";
+import { computed } from "vue";
 
-import Login from '../components/Login.vue';
-import Register from '../components/Register.vue';
-import ManageUsers from '../components/employee/ManageUsers.vue';
-import ViewAccount from '@/components/customer/ViewAccount.vue';
-import TransactionHistory from '@/components/transactions/TransactionOverview.vue';
-import ManageUserAccounts from '../components/employee/AccountView.vue';
-import ManageUser from '../components/employee/UserView.vue';
-import Forbidden from '../components/Forbidden.vue';
-import TransferForm from '@/components/transfer-money/Transfer-Form.vue';
-import AllTransactions from '../components/employee/AllTransactions.vue';
-import Atm from '@/components/atm/home.vue';
-import Deposit from '@/components/atm/deposit.vue';
+import Login from "../components/Login.vue";
+import Register from "../components/Register.vue";
+import ManageUsers from "../components/employee/ManageUsers.vue";
+import ViewAccount from "@/components/customer/ViewAccount.vue";
+import TransactionHistory from "@/components/transactions/TransactionOverview.vue";
+import ManageUserAccounts from "../components/employee/AccountView.vue";
+import ManageUser from "../components/employee/UserView.vue";
+import Forbidden from "../components/Forbidden.vue";
+import TransferForm from "@/components/transfer-money/Transfer-Form.vue";
+import AllTransactions from "../components/employee/AllTransactions.vue";
+import Atm from "@/components/atm/home.vue";
+import Deposit from "@/components/atm/deposit.vue";
 
+import Withdraw from "@/components/atm/Withdraw.vue";
 const routes = [
   {
-    path: '/403-forbidden',
+    path: "/403-forbidden",
     component: Forbidden,
     meta: { authRequired: false },
   },
   {
-    path: '/manage-users',
+    path: "/manage-users",
     component: ManageUsers,
     meta: {
       authRequired: true,
-      roles: ['ROLE_ADMINISTRATOR', 'ROLE_EMPLOYEE'],
+      roles: ["ROLE_ADMINISTRATOR", "ROLE_EMPLOYEE"],
     },
   },
-  { path: '/login', component: Login, meta: { authRequired: false } },
-  { path: '/register', component: Register, meta: { authRequired: false } },
+  { path: "/login", component: Login, meta: { authRequired: false } },
+  { path: "/register", component: Register, meta: { authRequired: false } },
   {
-    path: '/view-account',
+    path: "/view-account",
     component: ViewAccount,
     meta: {
       authRequired: true,
-      roles: ['ROLE_CUSTOMER'],
+      roles: ["ROLE_CUSTOMER"],
     },
   },
   {
-    path: '/transactionhistory/:account_id',
+    path: "/transactionhistory/:account_id",
     component: TransactionHistory,
     meta: { authRequired: true },
   },
   {
-    path: '/transactionhistory',
+    path: "/transactionhistory",
     component: TransactionHistory,
     meta: { authRequired: true },
   },
   {
-    path: '/manage-user-accounts/:id',
+    path: "/manage-user-accounts/:id",
     component: ManageUserAccounts,
     meta: {
       authRequired: true,
-      roles: ['ROLE_ADMINISTRATOR', 'ROLE_EMPLOYEE'],
+      roles: ["ROLE_ADMINISTRATOR", "ROLE_EMPLOYEE"],
     },
   },
   {
-    path: '/manage-user/:id',
+    path: "/manage-user/:id",
     component: ManageUser,
     meta: {
       authRequired: true,
-      roles: ['ROLE_ADMINISTRATOR', 'ROLE_EMPLOYEE'],
+      roles: ["ROLE_ADMINISTRATOR", "ROLE_EMPLOYEE"],
     },
   },
   {
-    path: '/transfer-money',
-    name: 'transferForm', // Added name for easier programmatic navigation
+    path: "/transfer-money",
+    name: "transferForm", // Added name for easier programmatic navigation
     component: TransferForm,
     meta: {
       authRequired: true, // Assuming transfer money requires authentication
-      roles: ['ROLE_CUSTOMER', 'ROLE_EMPLOYEE', 'ROLE_ADMINISTRATOR'], // Adjust roles as needed
+      roles: ["ROLE_CUSTOMER", "ROLE_EMPLOYEE", "ROLE_ADMINISTRATOR"], // Adjust roles as needed
     },
   },
   {
-    path: '/all-transactions',
+    path: "/all-transactions",
     component: AllTransactions,
     meta: {
       authRequired: true,
-      roles: ['ROLE_ADMINISTRATOR', 'ROLE_EMPLOYEE'],
+      roles: ["ROLE_ADMINISTRATOR", "ROLE_EMPLOYEE"],
     },
   },
-  { path: '/atm/home', component: Atm, meta: { authRequired: true, roles: ['ROLE_CUSTOMER'] } },
   {
-    path: '/atm/deposit',
+    path: "/atm/home",
+    component: Atm,
+    meta: { authRequired: true, roles: ["ROLE_CUSTOMER"] },
+  },
+  {
+    path: "/atm/deposit",
     component: Deposit,
-    meta: { authRequired: true, roles: ['ROLE_CUSTOMER'] },
+    meta: { authRequired: true, roles: ["ROLE_CUSTOMER"] },
+  },
+  {
+    path: "/atm/withdraw",
+    component: Withdraw,
+    meta: { authRequired: true, roles: ["ROLE_CUSTOMER"] },
   },
 ];
 
@@ -104,11 +114,11 @@ router.beforeEach((to, from, next) => {
 
   if (to.meta?.authRequired) {
     if (!loggedIn.value) {
-      return next('/login');
+      return next("/login");
     }
 
     if (to.meta?.roles && !to.meta.roles.includes(userRole.value)) {
-      return next('/403-forbidden');
+      return next("/403-forbidden");
     }
   }
 

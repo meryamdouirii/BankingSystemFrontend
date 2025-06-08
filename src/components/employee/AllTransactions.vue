@@ -7,29 +7,24 @@
         </li>
       </ol>
     </nav>
+    <div class="transaction-overview">
+      <h2>All Transactions</h2>
 
-    <div class="bg-light">
-      <div class="transaction-overview">
-        <h2>All Transactions</h2>
+      <TransactionFilters
+        @filter-changed="handleFilterChange"
+        @reset-filters="resetFilters"
+      />
 
-        <TransactionFilters
-          @filter-changed="handleFilterChange"
-          @reset-filters="resetFilters"
-        />
+      <div v-if="loading" class="loading-message">Loading transactions...</div>
+      <div v-if="error" class="error-message">{{ error }}</div>
 
-        <div v-if="loading" class="loading-message">
-          Loading transactions...
-        </div>
-        <div v-if="error" class="error-message">{{ error }}</div>
-
-        <TransactionTable
-          :transactions="transactions"
-          :total-items="totalTransactions"
-          :current-page="pagination.currentPage"
-          :items-per-page="pagination.itemsPerPage"
-          @page-changed="handlePageChange"
-        />
-      </div>
+      <TransactionTable
+        :transactions="transactions"
+        :total-items="totalTransactions"
+        :current-page="pagination.currentPage"
+        :items-per-page="pagination.itemsPerPage"
+        @page-changed="handlePageChange"
+      />
     </div>
   </div>
 </template>
