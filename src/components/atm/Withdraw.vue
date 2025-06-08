@@ -128,8 +128,13 @@ const withdraw = async () => {
       backendMessage = err.message;
     }
 
-    // Strip technical prefix if present
-    backendMessage = backendMessage.replace(/^Internal Server Error:\s*/i, "");
+    // Strip technical prefixes if present
+    backendMessage = backendMessage
+      .replace(/^Internal Server Error:\s*/i, "")
+      .replace(/^\d{3}\s+[A-Z_]+\s+/i, ""); // Remove HTTP status codes like "403 FORBIDDEN "
+
+    // Remove surrounding quotes if present
+    backendMessage = backendMessage.replace(/^["']|["']$/g, "");
 
     error.value = "Withdrawal failed: " + backendMessage;
     console.error("Withdrawal error:", err);
