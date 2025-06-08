@@ -132,12 +132,19 @@ const limitUpdateMessage = ref('');
 
 const updateLimits = async () => {
   limitsUpdated.value = false;
+
+  if (editedLimits.daily_limit < 0) {
+    limitUpdateMessageType.value = 'error';
+    limitUpdateMessage.value = 'Daily limit cannot be negative.';
+    limitsUpdated.value = true;
+    return;
+  }
   try {
     await axios.put(`/users/${userId}`, {
       ...user.value,
       daily_limit: editedLimits.daily_limit
     });
-
+    
     await fetchUser();
 
     limitUpdateMessageType.value = 'success';
@@ -149,8 +156,6 @@ const updateLimits = async () => {
   }
   limitsUpdated.value = true;
 };
-
-
 onMounted(() => {
   fetchUser();
 });

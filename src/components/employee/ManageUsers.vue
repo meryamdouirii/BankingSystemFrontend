@@ -15,8 +15,6 @@
 
           <div v-if="error" class="error-message">{{ error }}</div>
 
-          <!--<p>{{ users }}</p>-->
-
           <div v-if="!error" class="card-body" style="min-height: auto;">
             <input v-model="searchTerm" type="text" placeholder="Search users..." class="search-input" />
               <div class="table-scroll" v-if="filteredUsers.length">
@@ -51,10 +49,10 @@
                         </router-link>
 
                       </td>
-                      <td> {{ user.approval_status }} </td>
+                      <td> {{ user.approval_status }} {{ user._active }} </td>
                       <td>
-                        <span :class="['status', user._active ? 'active' : 'inactive']">
-                          {{ user._active ? 'Active' : 'Inactive' }}
+                        <span :class="['status', user.active ? 'active' : 'inactive']">
+                          {{ user.active ? 'Active' : 'Inactive' }}
                         </span>
                       </td>
                       <td class="text-center">

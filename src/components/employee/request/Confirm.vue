@@ -38,6 +38,7 @@
               type="number"
               step="0.01"
               v-model="limits.dailyLimit"
+              min="0"
             />
           </div>
         </div>
@@ -90,6 +91,12 @@ const confirmAction = async () => {
       error.value = 'All limits must be valid numbers (e.g. 100.00)';
       return;
     }
+
+    // Check daily limit is not negative
+    if (limits.dailyLimit < 0) {
+      error.value = 'Daily limit cannot be negative.';
+      return;
+    }
   }
 
   try {
@@ -116,6 +123,7 @@ const confirmAction = async () => {
     error.value = 'Something went wrong while processing the request.';
   }
 };
+
 </script>
 <style
 scoped>

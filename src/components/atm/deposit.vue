@@ -14,7 +14,8 @@
                 <h2 class="header-title mb-4">Deposit from your account</h2>
                 <AccountSection class="no-hover" title="" :account="checkingAccount" :customer="customer"
                     accountType="Centjesbank Checking Account" />
-                <div class="mb-3">
+                <div v-if="checkingAccount">
+                    <div class="mb-3">
                     <label for="deposit-amount" class="form-label">Deposit amount</label>
                     <input id="deposit-amount" type="number" step="0.01" min="0" v-model.number="amount"
                         class="form-control" placeholder="Enter amount" />
@@ -24,6 +25,8 @@
                 <div class="button-row">
                     <button class="btn-small" @click="deposit">Deposit</button>
                 </div>
+                </div>
+
             </div>
         </main>
     </div>

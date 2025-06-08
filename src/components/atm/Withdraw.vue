@@ -22,7 +22,7 @@
           :customer="customer"
           accountType="Centjesbank Checking Account"
         />
-
+        <div v-if="checkingAccount">
         <div class="mb-3">
           <label for="withdraw-amount" class="form-label"
             >Withdraw amount</label
@@ -39,6 +39,7 @@
         </div>
         <div class="button-row">
           <button class="btn-small" @click="withdraw">Withdraw</button>
+        </div>
         </div>
       </div>
     </main>

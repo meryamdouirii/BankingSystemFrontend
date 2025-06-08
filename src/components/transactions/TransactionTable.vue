@@ -46,7 +46,7 @@
                 : 'positive',
             ]"
           >
-            <span> €{{ Math.abs(transaction.amount).toFixed(2) }} </span>
+            <span>{{ currentAccountId == transaction.senderId ? '-' : '+' }} €{{ Math.abs(transaction.amount).toFixed(2) }} </span>
           </td>
           <td>{{ transaction.initiatorName }}</td>
         </tr>
