@@ -260,8 +260,11 @@ const isAmountTooHigh = computed(() => {
   const parsedAmount = parseFloat(amount.value);
   if (isNaN(parsedAmount) || parsedAmount <= 0) return false; // Ensure amount is a valid positive number
 
+  // Convert the positive account limit to negative for comparison
+  const negativeLimit = -Math.abs(selectedAccount.value.accountLimit);
   const resultingBalance = selectedAccount.value.balance - parsedAmount;
-  return resultingBalance < selectedAccount.value.accountLimit;
+
+  return resultingBalance < negativeLimit;
 });
 
 const isFormValid = computed(() => {
@@ -272,14 +275,11 @@ const isFormValid = computed(() => {
   if (parseFloat(amount.value) <= 0) return false;
 
   if (toAccount.value === "external") {
-    return !!recipientAccount.value
+    return !!recipientAccount.value;
   }
 
   // Ensure an internal 'to' account is selected and is not the same as 'from'
-  return (
-    !!toAccount.value &&
-    toAccount.value.id !== selectedAccount.value.id
-  );
+  return !!toAccount.value && toAccount.value.id !== selectedAccount.value.id;
 });
 
 const handleTransfer = async () => {
@@ -314,7 +314,9 @@ const handleTransfer = async () => {
     // You can add a success message or clear the form here as well
   } catch (err) {
     const backendMessage =
-      err.response?.data?.message || err.response?.data || "An unexpected error occurred";
+      err.response?.data?.message ||
+      err.response?.data ||
+      "An unexpected error occurred";
 
     error.value = "Transfer failed: " + backendMessage;
     console.error("Transfer error:", err);
@@ -369,7 +371,8 @@ onMounted(async () => {
   employeeTargetAccountId.value = route.query.accountId;
 
   if (isEmployeeInitiatedTransfer.value) {
-    if (!authStore.userId) { // Ensure employee is logged in
+    if (!authStore.userId) {
+      // Ensure employee is logged in
       error.value = "Employee not authenticated.";
       loading.value = false;
       return;
