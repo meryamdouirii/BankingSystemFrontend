@@ -2,10 +2,10 @@ import axios from "axios";
 import router from "./router";
 
 // Create Axios instance
-  const instance = axios.create({
-    //baseURL: "https://centjesbank.onrender.com/api/", // adjust if needed
-    baseURL: "http://localhost:8080/api",
-  });
+const instance = axios.create({
+  //baseURL: "https://centjesbank.onrender.com/api/",
+  baseURL: "http://localhost:8080/api",
+});
 
 // Helper: Check if JWT is expired
 function isTokenExpired(token) {
@@ -15,11 +15,22 @@ function isTokenExpired(token) {
     return payload.exp && payload.exp < now;
   } catch (e) {
     console.warn("Invalid token", e);
-    return true; // Assume expired if broken
+    return true;
   }
 }
 
-// Async interceptor using async/await
+function showSessionExpiredMessage() {
+  const message =
+    "Your session has expired for security reasons. Please log in again to continue.";
+
+  //Simple alert
+  alert(message);
+}
+
+// Track if we've already shown the expiry message to avoid spam
+let hasShownExpiryMessage = false;
+
+// Request interceptor
 instance.interceptors.request.use(
   async (config) => {
     const token = localStorage.getItem("auth_token");
@@ -28,10 +39,27 @@ instance.interceptors.request.use(
       const expired = isTokenExpired(token);
 
       if (expired) {
-        localStorage.removeItem("token");
-        console.log("Token expired");
+        // Clean up local storage
+        localStorage.removeItem("auth_token");
+        localStorage.removeItem("auth_userId");
+        localStorage.removeItem("auth_userRole");
+        localStorage.removeItem("auth_expiresAt");
+        localStorage.removeItem("auth_loginType");
+
+        // Show message only once
+        if (!hasShownExpiryMessage) {
+          hasShownExpiryMessage = true;
+          showSessionExpiredMessage();
+
+          // Reset the flag after a delay
+          setTimeout(() => {
+            hasShownExpiryMessage = false;
+          }, 5000);
+        }
+
+        console.log("Token expired - redirecting to login");
         router.push("/login");
-        throw new axios.Cancel("Token expired – redirecting to login");
+        throw new axios.Cancel("Session expired");
       } else {
         config.headers.Authorization = `Bearer ${token}`;
       }
@@ -40,6 +68,35 @@ instance.interceptors.request.use(
     return config;
   },
   async (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Response interceptor to handle 401 errors from server
+instance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Token might be expired or invalid according to server
+      if (!hasShownExpiryMessage) {
+        hasShownExpiryMessage = true;
+        showSessionExpiredMessage();
+
+        setTimeout(() => {
+          hasShownExpiryMessage = false;
+        }, 5000);
+      }
+
+      // Clean up and redirect
+      localStorage.removeItem("auth_token");
+      localStorage.removeItem("auth_userId");
+      localStorage.removeItem("auth_userRole");
+      localStorage.removeItem("auth_expiresAt");
+      localStorage.removeItem("auth_loginType");
+
+      router.push("/login");
+    }
+
     return Promise.reject(error);
   }
 );
