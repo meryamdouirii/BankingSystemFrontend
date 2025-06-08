@@ -119,8 +119,19 @@ const withdraw = async () => {
   } catch (err) {
     success.value = null;
 
-    // Try to extract the message from the backend
-    const backendMessage = err.response?.data?.message || err.message;
+    let backendMessage = "An unexpected error occurred.";
+    if (err.response) {
+      if (err.response.data?.message) {
+        backendMessage = err.response.data.message;
+      } else if (typeof err.response.data === "string") {
+        backendMessage = err.response.data;
+      }
+    } else {
+      backendMessage = err.message;
+    }
+
+    // Strip technical prefix if present
+    backendMessage = backendMessage.replace(/^Internal Server Error:\s*/i, "");
 
     error.value = "Withdrawal failed: " + backendMessage;
     console.error("Withdrawal error:", err);

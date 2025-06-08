@@ -1,57 +1,67 @@
 <template>
   <div class="modal-overlay" @click.self="closeModal">
     <div class="modal-content">
+      <button class="btn-close" @click="closeModal">×</button>
+
       <div class="modal-header">
-        <h3>Search Customer IBAN</h3>
-        <button @click="closeModal">×</button>
+        <h3 class="header-title">Search Customer IBAN</h3>
       </div>
+
       <div class="modal-body">
-        <label>Enter customer name</label>
-        <div class="search-container">
-          <input
-            type="text"
-            v-model="searchQuery"
-            placeholder="Enter customer name..."
-            @keyup.enter="searchCustomers"
-          />
-          <button
-            class="search-btn"
-            @click="searchCustomers"
-            :disabled="searchQuery.trim().length < 3"
-          >
-            Search
-          </button>
+        <div class="form-group">
+          <label>Enter customer name</label>
+          <div class="search-container">
+            <input
+              type="text"
+              class="form-control search-input"
+              v-model="searchQuery"
+              placeholder="Enter customer name..."
+              @keyup.enter="searchCustomers"
+            />
+            <button
+              class="btn-small"
+              @click="searchCustomers"
+              :disabled="searchQuery.trim().length < 3"
+            >
+              Search
+            </button>
+          </div>
         </div>
 
-        <div v-if="isLoading" class="loading-message">Searching...</div>
-        <div v-else-if="errorMessage" class="error-message">
+        <div v-if="isLoading" class="loading-message">
+          <div class="spinner"></div>
+          Searching...
+        </div>
+        <div v-else-if="errorMessage" class="error-message error">
           {{ errorMessage }}
         </div>
         <div
           v-else-if="filteredAccounts.length === 0 && hasSearched"
-          class="no-results"
+          class="no-accounts"
         >
           No accounts found
         </div>
 
-        <div v-else>
+        <div v-else class="results-container">
           <div
             v-for="account in filteredAccounts"
             :key="account.iban"
-            class="result-item"
+            class="result-item clickable-row"
+            @click="selectAccount(account)"
           >
             <div class="account-info">
               <strong>{{ account.userName }}</strong> –
               {{ formatIban(account.iban) }} ({{ account.accountType }})
             </div>
-            <button class="select-btn" @click="selectAccount(account)">
+            <button class="btn-small" @click.stop="selectAccount(account)">
               Select
             </button>
           </div>
         </div>
       </div>
-      <div class="modal-footer">
-        <button @click="closeModal">Close</button>
+
+      <div class="modal-actions">
+        <button class="btn-small" @click="closeModal">Close</button>
       </div>
     </div>
   </div>
@@ -69,7 +79,7 @@ export default {
       isLoading: false,
       errorMessage: "",
       filteredAccounts: [],
-      hasSearched: false, // Add this flag
+      hasSearched: false,
     };
   },
   methods: {
@@ -79,13 +89,13 @@ export default {
       if (trimmedQuery.length < 3) {
         this.errorMessage = "Please enter at least 3 characters to search.";
         this.filteredAccounts = [];
-        this.hasSearched = false; // Reset if invalid search
+        this.hasSearched = false;
         return;
       }
 
       this.isLoading = true;
       this.errorMessage = "";
-      this.hasSearched = true; // Set true when search is triggered
+      this.hasSearched = true;
 
       try {
         const response = await axios.get("/users/find", {
@@ -118,195 +128,93 @@ export default {
 </script>
 
 <style scoped>
-.search-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.result-item {
-  padding: 12px 16px;
-  border-bottom: 1px solid #f0f0f0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-}
-
-.select-btn {
-  padding: 6px 12px;
-  background-color: #ffffff;
-  color: #6c63ff;
-  border: 1px solid #6c63ff;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 13px;
-  transition: background-color 0.2s, color 0.2s;
-}
-
-.select-btn:hover {
-  background-color: #6c63ff;
-  color: #fff;
-  border-color: #6c63ff;
-}
 .search-container {
   display: flex;
   gap: 10px;
-  margin-bottom: 12px;
+  align-items: flex-end;
 }
 
-.search-container input {
+.search-container .form-control {
   flex: 1;
-  padding: 10px 14px;
-  font-size: 14px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  box-sizing: border-box; /* Ensure consistent sizing */
-  height: 40px; /* Set an explicit height */
+  margin-bottom: 0;
 }
 
 .search-btn {
-  height: 40px; /* Match input height */
-  padding: 0 16px; /* Remove vertical padding to use height */
-  background-color: #ffffff;
-  color: #6c63ff;
-  border: 1px solid #6c63ff;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.2s, color 0.2s;
-  box-sizing: border-box;
+  white-space: nowrap;
+  height: fit-content;
 }
-.search-btn:hover {
-  background-color: #ff6b6b;
-  color: #fff;
-  border-color: #ff6b6b;
-}
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100vh;
-  width: 100vw;
-  background-color: rgba(0, 0, 0, 0.5);
+
+.loading-message {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 999;
+  padding: 1rem;
+  color: #666;
+  font-style: italic;
 }
 
-.modal-content {
-  background-color: #6c63ff;
-  border-radius: 12px;
-  width: 90%;
-  max-width: 500px;
-  padding: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 10px;
-  margin-bottom: 15px;
-}
-
-.modal-header h3 {
-  margin: 0;
-  font-size: 20px;
-}
-
-.modal-header button {
-  background: none;
-  border: none;
-  font-size: 24px;
-  line-height: 1;
-  cursor: pointer;
-  color: #888;
-}
-
-.modal-body label {
-  display: block;
-  margin-bottom: 6px;
-  font-weight: 500;
-  color: #ffffff;
-}
-
-.modal-body input {
-  width: 100%;
-  padding: 10px 14px;
-  font-size: 16px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  margin-bottom: 12px;
-}
-
-.modal-body input:focus {
-  border-color: #ff6b6b;
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(108, 99, 255, 0.2);
+.results-container {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  margin-top: 1rem;
 }
 
 .result-item {
   padding: 12px 16px;
   border-bottom: 1px solid #f0f0f0;
-  cursor: pointer;
-  transition: background-color 0.2s;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
 }
 
 .result-item:last-child {
   border-bottom: none;
 }
 
-.result-item:hover {
-  background-color: #ff6b6b;
-}
-
-.modal-body div {
+.account-info {
+  flex: 1;
   font-size: 14px;
+  color: #333;
 }
 
-.modal-footer {
-  margin-top: 15px;
-  text-align: right;
+.modal-header {
+  margin-bottom: 1.5rem;
 }
 
-.modal-footer button {
-  padding: 8px 16px;
-  background-color: #6c63ff;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.2s;
+.modal-body {
+  min-height: 200px;
 }
 
-.modal-footer button:hover {
-  background-color: #ff6b6b;
+.modal-body label {
+  color: #333;
 }
 
-/* Loading and no-results messages */
-.modal-body .loading-message,
-.modal-body .no-results {
-  padding: 12px;
-  color: #ffffff;
-  font-style: italic;
-  text-align: center;
+.no-accounts {
+  color: #666;
 }
 
-/* Responsive */
+/* Responsive adjustments */
 @media (max-width: 500px) {
-  .modal-content {
-    padding: 16px;
+  .search-container {
+    flex-direction: column;
+    gap: 8px;
   }
 
-  .modal-body input {
-    padding: 9px 12px;
+  .search-btn {
+    width: 100%;
   }
 
   .result-item {
-    padding: 10px 12px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .result-item .btn-small {
+    align-self: flex-end;
   }
 }
 </style>
